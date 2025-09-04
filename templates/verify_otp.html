@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,246 +11,67 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
+                        'sans': ['Inter', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border-radius: 16px;
-        }
-        .accent-text {
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-input {
-            background: rgba(249, 250, 251, 0.8);
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 16px;
-            width: 100%;
-            font-size: 24px;
-            font-weight: 600;
-            text-align: center;
-            letter-spacing: 8px;
-            transition: all 0.2s ease;
-            color: #374151;
-            font-family: 'Inter', monospace;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .form-input::placeholder {
-            color: #9ca3af;
-            letter-spacing: 4px;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
-            border-radius: 8px;
-            width: 100%;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        .floating-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        .shape {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-        .shape:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        .shape:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            top: 60%;
-            right: 10%;
-            animation-delay: 2s;
-        }
-        .shape:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 4s;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-        .email-highlight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 600;
-        }
-        .otp-container {
-            position: relative;
-        }
-        .otp-container::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            right: 20px;
-            height: 1px;
-            background: #e5e7eb;
-            transform: translateY(-50%);
-            pointer-events: none;
-        }
-    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 relative">
-    <!-- Floating Background Shapes -->
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-    </div>
-
-    <main class="w-full max-w-md relative z-10">
-        <!-- Logo Section -->
-        <div class="text-center mb-8">
-            <div class="flex items-center justify-center mb-4">
-                <svg class="w-10 h-10 text-white mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path>
-                </svg>
-                <a href="{{ url_for('landing') }}" class="text-3xl font-bold accent-text">JIT Sports</a>
+<body class="h-full font-sans text-gray-800">
+    <main class="flex flex-col justify-center items-center min-h-full px-4 sm:px-6 lg:px-8 py-12">
+        <div class="w-full max-w-md">
+             <div class="text-center mb-8">
+                 <a href="{{ url_for('landing') }}" class="flex items-center justify-center space-x-2">
+                    <span class="text-2xl font-bold text-gray-800">JIT Sports</span>
+                </a>
             </div>
-            <p class="text-white/80 text-sm">Almost there! Just verify your email.</p>
-        </div>
 
-        <div class="panel p-8">
-            <!-- Header with Email Icon -->
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
+            <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200/80">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-teal-100 rounded-full mb-4">
+                        <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Check Your Email</h2>
+                    <p class="text-sm text-gray-600 mt-2">
+                        We sent a 6-digit code to <br> <span class="font-semibold text-teal-600">{{ email }}</span>
+                    </p>
                 </div>
-                <h2 class="text-2xl font-bold mb-2 text-gray-900">Check Your Email</h2>
-                <p class="text-sm text-gray-600 mb-6">
-                    We've sent a 6-character OTP to<br>
-                    <span class="email-highlight">{{ email }}</span>
-                </p>
-            </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
                         <div class="mb-4 p-3 rounded-md flex items-center {{ 'bg-red-50 border border-red-200 text-red-700' if category == 'danger' else 'bg-blue-50 border border-blue-200 text-blue-700' }} text-sm">
                             {% if category == 'danger' %}
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                </svg>
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                             {% else %}
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                             {% endif %}
                             {{ message }}
                         </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
-            <form action="{{ url_for('verify_otp') }}" method="POST" class="space-y-6">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-3 text-center">Enter 6-Digit Code</label>
-                    <div class="otp-container">
-                        <input type="text" name="otp" class="form-input" required maxlength="6" placeholder="000000" autocomplete="one-time-code">
+                <form action="{{ url_for('verify_otp') }}" method="POST" class="space-y-6">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div>
+                        <label for="otp" class="sr-only">Enter 6-Digit Code</label>
+                        <input type="text" id="otp" name="otp" class="block w-full text-center px-3 py-3 text-2xl border border-gray-300 rounded-md placeholder-gray-400 tracking-[0.5em] focus:outline-none focus:ring-teal-500 focus:border-teal-500" required maxlength="6" placeholder="------" autocomplete="one-time-code">
                     </div>
-                </div>
-
-                <button type="submit" class="btn-primary">
-                    <span class="flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                         Verify & Login
-                    </span>
-                </button>
+                    </button>
+                </form>
 
-                <!-- Resend Section -->
-                <div class="text-center pt-4">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-4 bg-white text-gray-500">Didn't receive the code?</span>
-                        </div>
-                    </div>
-                    
-                    <p class="text-sm text-gray-600 mt-4">
-                        <a href="{{ url_for('login') }}" class="text-blue-600 hover:text-blue-800 transition duration-200 font-medium">
-                            Try again
+                 <div class="mt-6 text-center text-sm">
+                    <p class="text-gray-500">Didn't receive it? 
+                        <a href="{{ url_for('login') }}" class="font-medium text-teal-600 hover:text-teal-500">
+                            Try sending again.
                         </a>
                     </p>
                 </div>
-            </form>
-
-            <!-- Help Section -->
-            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                <div class="flex items-start">
-                    <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                    </svg>
-                    <div class="text-sm text-gray-600">
-                        <p class="font-medium mb-1">Check your spam folder</p>
-                        <p>If you don't see the email, it might be in your spam or junk folder.</p>
-                    </div>
-                </div>
             </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="text-center mt-6">
-            <p class="text-white/60 text-xs">
-                © 2024 JIT Sports. All rights reserved.
-            </p>
         </div>
     </main>
 </body>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,203 +11,63 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
+                        'sans': ['Inter', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border-radius: 16px;
-        }
-        .accent-text {
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-input {
-            background: rgba(249, 250, 251, 0.8);
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 12px 16px;
-            width: 100%;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            color: #374151;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .form-input::placeholder {
-            color: #9ca3af;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
-            border-radius: 8px;
-            width: 100%;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        .floating-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        .shape {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-        .shape:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        .shape:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            top: 60%;
-            right: 10%;
-            animation-delay: 2s;
-        }
-        .shape:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 4s;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 relative">
-    <!-- Floating Background Shapes -->
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-    </div>
-
-    <main class="w-full max-w-md relative z-10">
-        <!-- Logo Section -->
-        <div class="text-center mb-8">
-            <div class="flex items-center justify-center mb-4">
-                <svg class="w-10 h-10 text-white mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path>
-                </svg>
-                <a href="{{ url_for('landing') }}" class="text-3xl font-bold accent-text">JIT Sports</a>
+<body class="h-full font-sans text-gray-800">
+    <main class="flex flex-col justify-center items-center min-h-full px-4 sm:px-6 lg:px-8 py-12">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                 <a href="{{ url_for('landing') }}" class="flex items-center justify-center space-x-2">
+                    <span class="text-2xl font-bold text-gray-800">JIT Sports</span>
+                </a>
+                <p class="text-gray-600 text-sm mt-2">Welcome back! Sign in to continue.</p>
             </div>
-            <p class="text-white/80 text-sm">Welcome back! Please sign in to continue.</p>
-        </div>
 
-        <div class="panel p-8">
-            <h2 class="text-2xl font-bold mb-6 text-center text-gray-900">Login</h2>
-            
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
+            <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200/80">
+                <h2 class="text-2xl font-bold mb-6 text-center text-gray-900">Sign In</h2>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
                         <div class="mb-4 p-3 rounded-md flex items-center {{ 'bg-red-50 border border-red-200 text-red-700' if category == 'danger' else 'bg-blue-50 border border-blue-200 text-blue-700' }} text-sm">
                             {% if category == 'danger' %}
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                </svg>
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                             {% else %}
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                             {% endif %}
                             {{ message }}
                         </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
-            <form action="{{ url_for('login') }}" method="POST" class="space-y-6">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                            </svg>
+                <form action="{{ url_for('login') }}" method="POST" class="space-y-6">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                            </div>
+                            <input type="email" id="username" name="username" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm" required placeholder="your.email@example.com">
                         </div>
-                        <input type="text" name="username" class="form-input pl-10" required placeholder="your.email@example.com">
                     </div>
-                </div>
-                <button type="submit" class="btn-primary">
-                    <span class="flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                        </svg>
+                    <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                         Send OTP
-                    </span>
-                </button>
-            </form>
+                    </button>
+                </form>
 
-            <!-- Additional Links -->
-            <div class="mt-8 text-center">
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-white text-gray-500">Need help?</span>
-                    </div>
-                </div>
-                
-                <div class="mt-6 flex justify-center space-x-4 text-sm">
-                    <a href="#" class="text-blue-600 hover:text-blue-800 transition duration-200">
-                        Contact Support
-                    </a>
-                    <span class="text-gray-300">•</span>
-                    <a href="#" class="text-blue-600 hover:text-blue-800 transition duration-200">
-                        Back to Home
+                <div class="mt-6 text-center text-sm">
+                    <a href="#" class="font-medium text-teal-600 hover:text-teal-500">
+                        Need help? Contact support.
                     </a>
                 </div>
             </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="text-center mt-6">
-            <p class="text-white/60 text-xs">
-                © 2024 JIT Sports. All rights reserved.
-            </p>
         </div>
     </main>
 </body>

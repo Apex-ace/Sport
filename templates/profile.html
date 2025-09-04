@@ -1,406 +1,48 @@
 {% extends "base.html" %}
 {% block title %}My Profile{% endblock %}
+
 {% block content %}
-<style>
-    :root {
-        --bg-primary: #f8fafc;
-        --bg-secondary: #ffffff;
-        --border-primary: #e2e8f0;
-        --text-primary: #1e293b;
-        --text-secondary: #64748b;
-        --accent-primary: #3b82f6;
-        --accent-purple: #8b5cf6;
-        --accent-indigo: #4f46e5;
-        --success-color: #10b981;
-        --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        --card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
-    }
-
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-        min-height: 100vh;
-    }
-
-    .profile-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-
-    /* Profile Header Styles */
-    .profile-header {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        background: white;
-        padding: 2rem;
-        border-radius: 16px;
-        box-shadow: var(--card-shadow);
-        border: 1px solid var(--border-primary);
-        margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .profile-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--accent-primary), var(--accent-purple));
-    }
-
-    .profile-avatar {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        border: 4px solid var(--accent-primary);
-        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
-        transition: all 0.3s ease;
-        object-fit: cover;
-    }
-
-    .profile-avatar:hover {
-        transform: scale(1.05);
-        box-shadow: 0 12px 30px rgba(59, 130, 246, 0.3);
-    }
-
-    .profile-info h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.025em;
-    }
-
-    .profile-info p {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        font-weight: 500;
-    }
-
-    /* Bookings Section */
-    .bookings-section {
-        margin-top: 2rem;
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .section-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .section-title::before {
-        content: '📅';
-        font-size: 1.5rem;
-    }
-
-    .book-another-btn {
-        background: linear-gradient(135deg, var(--accent-indigo) 0%, var(--accent-primary) 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 10px;
-        font-weight: 600;
-        text-decoration: none;
-        font-size: 0.9375rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
-        letter-spacing: 0.025em;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .book-another-btn::after {
-        content: '→';
-        font-size: 1.125rem;
-        transition: transform 0.2s ease;
-    }
-
-    .book-another-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
-    }
-
-    .book-another-btn:hover::after {
-        transform: translateX(2px);
-    }
-
-    /* Bookings List */
-    .bookings-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .booking-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: var(--card-shadow);
-        border: 1px solid var(--border-primary);
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .booking-card::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-purple) 100%);
-    }
-
-    .booking-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--card-shadow-hover);
-    }
-
-    .booking-info {
-        flex: 1;
-    }
-
-    .booking-game-name {
-        font-weight: 700;
-        color: var(--accent-indigo);
-        font-size: 1.125rem;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .booking-game-name::before {
-        content: '🎮';
-        font-size: 1rem;
-    }
-
-    .booking-datetime {
-        color: var(--text-secondary);
-        font-size: 0.9375rem;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .booking-datetime::before {
-        content: '📅';
-        font-size: 0.875rem;
-    }
-
-    .booking-created {
-        text-align: right;
-        font-size: 0.8125rem;
-        color: var(--text-secondary);
-        font-weight: 500;
-        background: #f8fafc;
-        padding: 0.5rem 0.75rem;
-        border-radius: 8px;
-        border: 1px solid var(--border-primary);
-    }
-
-    .booking-created-label {
-        display: block;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        background: white;
-        padding: 4rem 2rem;
-        border-radius: 16px;
-        box-shadow: var(--card-shadow);
-        border: 1px solid var(--border-primary);
-        position: relative;
-    }
-
-    .empty-state::before {
-        content: '🎯';
-        font-size: 4rem;
-        display: block;
-        margin-bottom: 1rem;
-        opacity: 0.7;
-    }
-
-    .empty-state h3 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.75rem;
-    }
-
-    .empty-state p {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        font-weight: 500;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .profile-container {
-            padding: 1rem 0.5rem;
-        }
-
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-            gap: 1.5rem;
-            padding: 1.5rem;
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-        }
-
-        .profile-info h1 {
-            font-size: 1.75rem;
-        }
-
-        .section-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: stretch;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            justify-content: center;
-        }
-
-        .booking-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1.25rem;
-        }
-
-        .booking-created {
-            align-self: flex-end;
-        }
-
-        .empty-state {
-            padding: 3rem 1.5rem;
-        }
-    }
-
-    @media (max-width: 640px) {
-        .profile-header {
-            padding: 1.25rem;
-        }
-
-        .profile-info h1 {
-            font-size: 1.5rem;
-        }
-
-        .section-title {
-            font-size: 1.375rem;
-        }
-
-        .booking-game-name {
-            font-size: 1rem;
-        }
-
-        .booking-datetime {
-            font-size: 0.875rem;
-        }
-
-        .empty-state::before {
-            font-size: 3rem;
-        }
-
-        .empty-state h3 {
-            font-size: 1.25rem;
-        }
-    }
-
-    /* Accessibility improvements */
-    .booking-card:focus-within {
-        outline: 2px solid var(--accent-primary);
-        outline-offset: 2px;
-    }
-
-    .book-another-btn:focus {
-        outline: 2px solid var(--accent-primary);
-        outline-offset: 2px;
-    }
-
-    /* Animation for loading state */
-    .booking-card.loading {
-        opacity: 0.7;
-        pointer-events: none;
-    }
-
-    /* Smooth transitions for dynamic content */
-    .bookings-list {
-        transition: all 0.3s ease;
-    }
-</style>
-
-<div class="profile-container">
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <img src="{{ user.profile_picture or 'https://placehold.co/100x100/E2E8F0/4A5568?text=Profile' }}" alt="Profile Picture" class="profile-avatar">
-        <div class="profile-info">
-            <h1>{{ user.username }}</h1>
-            <p>Here are your confirmed bookings.</p>
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg border border-gray-200/80 mb-10">
+        <div class="flex flex-col sm:flex-row items-center sm:space-x-6">
+            <img src="{{ user.profile_picture or 'https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=ccfbf1&color=0f766e&size=128' }}" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-teal-200 mb-4 sm:mb-0 flex-shrink-0">
+            <div class="text-center sm:text-left">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 break-words">{{ user.username }}</h1>
+                <p class="text-gray-600 mt-1">Here you can find all of your confirmed bookings.</p>
+            </div>
         </div>
     </div>
 
-    <!-- Bookings Section -->
-    <div class="bookings-section">
-        <div class="section-header">
-            <h2 class="section-title">My Bookings</h2>
-            <a href="{{ url_for('home') }}" class="book-another-btn">Book Another Game</a>
+    <div>
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4 sm:mb-0">My Bookings</h2>
+            <a href="{{ url_for('home') }}" class="w-full sm:w-auto flex justify-center items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm rounded-md transition-colors">
+                Book Another Game
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
         </div>
         
         {% if bookings %}
-            <div class="bookings-list">
+            <div class="space-y-4">
                 {% for booking in bookings %}
-                    <div class="booking-card">
-                        <div class="booking-info">
-                            <p class="booking-game-name">{{ booking.game.name }}</p>
-                            <p class="booking-datetime">{{ booking.booking_time.strftime('%A, %B %d, %Y at %I:%M %p') }}</p>
-                        </div>
-                        <div class="booking-created">
-                            <span class="booking-created-label">Booked on</span>
-                            {{ booking.created_at.strftime('%Y-%m-%d') }}
-                        </div>
+                <div class="bg-white p-5 rounded-lg shadow-md border border-gray-200/80 flex flex-col sm:flex-row items-center justify-between transition-transform hover:-translate-y-0.5">
+                    <div class="mb-4 sm:mb-0 text-center sm:text-left">
+                        <p class="font-semibold text-lg text-gray-800">{{ booking.game.name }}</p>
+                        <p class="text-sm text-gray-500">{{ booking.booking_time.strftime('%A, %B %d, %Y at %I:%M %p') }}</p>
                     </div>
+                    <div class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                        Booked on {{ booking.created_at.strftime('%b %d, %Y') }}
+                    </div>
+                </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="empty-state">
-                <h3>You have no bookings.</h3>
-                <p>Go to the home page to book a game.</p>
+            <div class="text-center bg-white p-12 rounded-lg shadow-lg border border-gray-200/80">
+                <div class="text-5xl mb-4">🎯</div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">You have no bookings yet.</h3>
+                <p class="text-gray-600">Why not book your first game now?</p>
             </div>
         {% endif %}
     </div>
-</div>
+</main>
 {% endblock %}
