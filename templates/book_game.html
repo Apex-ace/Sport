@@ -85,9 +85,9 @@
         <div class="booking-card p-8 md:p-10 rounded-3xl shadow-2xl border border-gray-100">
             <div class="text-center mb-10">
                 <div class="game-icon w-20 h-20 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-xl">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden">
+                            <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain">
+                        </div>
                 </div>
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Book {{ game.name }}</h1>
                 <p class="text-gray-600 text-lg leading-relaxed">Select your preferred date and time slot to secure your booking.</p>

@@ -247,7 +247,7 @@
                             </td>
                             <td class="py-4 px-6">
                                 <div class="text-gray-900 font-medium">
-                                    {{ booking.booking_date.strftime('%B %d, %Y') }}
+                                    {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%B %d, %Y') }}
                                 </div>
                                 <div class="text-gray-500 text-sm">
                                     {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%I:%M %p') }}

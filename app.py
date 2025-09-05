@@ -31,6 +31,13 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'a-default-secret-key-for-dev
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['ADMIN_PASSWORD'] = "441106"
+# Database connection pool configuration
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+    'pool_timeout': 20,
+    'max_overflow': 0
+}
 # SMTP Configuration
 app.config['SMTP_SERVER'] = os.getenv('SMTP_SERVER')
 app.config['SMTP_PORT'] = int(os.getenv('SMTP_PORT', 587))
@@ -213,6 +220,27 @@ def book_game(game_id):
     
     return render_template('book_game.html', game=game, next_seven_days=next_seven_days, booked_slots_json=json.dumps(booked_slots))
 
+# --- Database Helper Functions ---
+def db_retry_operation(operation, max_retries=3):
+    """Retry database operations with exponential backoff for connection issues"""
+    import time
+    from sqlalchemy.exc import OperationalError
+    
+    for attempt in range(max_retries):
+        try:
+            return operation()
+        except OperationalError as e:
+            if attempt == max_retries - 1:
+                raise e
+            print(f"Database connection error (attempt {attempt + 1}): {e}")
+            time.sleep(2 ** attempt)  # Exponential backoff
+            # Attempt to refresh the connection
+            try:
+                db.session.rollback()
+                db.session.close()
+            except:
+                pass
+
 # --- Auth Routes ---
 @app.route('/register')
 def register():
@@ -223,23 +251,43 @@ def login():
     if current_user.is_authenticated: return redirect(url_for('home'))
     if request.method == 'POST':
         username = request.form.get('username').lower().strip()
-        user = User.query.filter_by(username=username).first()
-        if not user:
-            user = User(username=username, role='student', id=uuid.uuid4())
-            db.session.add(user)
-            flash('Welcome! Creating your account.', 'success')
         
-        otp = secrets.token_hex(3).upper()
-        user.otp_hash = generate_password_hash(otp)
-        user.otp_expiry = datetime.now(timezone.utc) + timedelta(minutes=5)
-        db.session.commit()
+        def get_or_create_user():
+            user = User.query.filter_by(username=username).first()
+            if not user:
+                user = User(username=username, role='student', id=uuid.uuid4())
+                db.session.add(user)
+                flash('Welcome! Creating your account.', 'success')
+            return user
         
-        if send_otp_email(user.username, otp):
-            session['username_for_verification'] = user.username
-            flash('An OTP has been sent to your email.', 'info')
-            return redirect(url_for('verify_otp'))
-        else:
-            flash('Failed to send OTP email. Please try again.', 'danger')
+        try:
+            user = db_retry_operation(get_or_create_user)
+            
+            otp = secrets.token_hex(3).upper()
+            user.otp_hash = generate_password_hash(otp)
+            user.otp_expiry = datetime.now(timezone.utc) + timedelta(minutes=5)
+            
+            def commit_changes():
+                db.session.commit()
+                return True
+            
+            db_retry_operation(commit_changes)
+            
+            if send_otp_email(user.username, otp):
+                session['username_for_verification'] = user.username
+                flash('An OTP has been sent to your email.', 'info')
+                return redirect(url_for('verify_otp'))
+            else:
+                flash('Failed to send OTP email. Please try again.', 'danger')
+                
+        except Exception as e:
+            print(f"Login database error: {e}")
+            flash('Database connection issue. Please try again in a moment.', 'danger')
+            try:
+                db.session.rollback()
+            except:
+                pass
+                
     return render_template('login.html')
 
 @app.route('/verify_otp', methods=['GET', 'POST'])
@@ -248,17 +296,33 @@ def verify_otp():
     if not username: return redirect(url_for('login'))
     if request.method == 'POST':
         otp = request.form.get('otp').strip()
-        user = User.query.filter_by(username=username).first()
-        is_valid = user and user.otp_hash and user.otp_expiry > datetime.now(timezone.utc) and check_password_hash(user.otp_hash, otp)
-        if is_valid:
-            user.otp_hash = None
-            user.otp_expiry = None
-            db.session.commit()
-            login_user(user, remember=True)
-            session.pop('username_for_verification', None)
-            return redirect(url_for('home'))
-        else:
-            flash('Invalid or expired OTP.', 'danger')
+        
+        try:
+            def verify_and_login():
+                user = User.query.filter_by(username=username).first()
+                is_valid = user and user.otp_hash and user.otp_expiry > datetime.now(timezone.utc) and check_password_hash(user.otp_hash, otp)
+                if is_valid:
+                    user.otp_hash = None
+                    user.otp_expiry = None
+                    db.session.commit()
+                    login_user(user, remember=True)
+                    session.pop('username_for_verification', None)
+                    return True
+                return False
+            
+            if db_retry_operation(verify_and_login):
+                return redirect(url_for('home'))
+            else:
+                flash('Invalid or expired OTP.', 'danger')
+                
+        except Exception as e:
+            print(f"OTP verification database error: {e}")
+            flash('Database connection issue. Please try again.', 'danger')
+            try:
+                db.session.rollback()
+            except:
+                pass
+                
     return render_template('verify_otp.html', email=username)
 
 # --- Logout Routes ---
@@ -307,12 +371,16 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
 
     try:
-        users = User.query.order_by(User.username).all()
-        bookings = db.session.query(Booking, User, Game)\
-            .join(User, Booking.user_id == User.id)\
-            .join(Game, Booking.game_id == Game.id)\
-            .order_by(Booking.booking_time.desc())\
-            .all()
+        def get_dashboard_data():
+            users = User.query.order_by(User.username).all()
+            bookings = db.session.query(Booking, User, Game)\
+                .join(User, Booking.user_id == User.id)\
+                .join(Game, Booking.game_id == Game.id)\
+                .order_by(Booking.booking_time.desc())\
+                .all()
+            return users, bookings
+        
+        users, bookings = db_retry_operation(get_dashboard_data)
         
         return render_template('admin_dashboard.html', 
                              users=users, 
