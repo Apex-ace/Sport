@@ -1,78 +1,172 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify OTP :: JIT Sports</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
                         'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a'
+                        }
                     }
                 }
             }
         }
     </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 25%, #ccfbf1 50%, #99f6e4 75%, #5eead4 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .nav-brand {
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .otp-input {
+            letter-spacing: 0.5em;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .floating-email {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
-<body class="h-full font-sans text-gray-800">
+<body class="h-full font-sans text-gray-800 hero-gradient">
     <main class="flex flex-col justify-center items-center min-h-full px-4 sm:px-6 lg:px-8 py-12">
         <div class="w-full max-w-md">
              <div class="text-center mb-8">
-                 <a href="{{ url_for('landing') }}" class="flex items-center justify-center space-x-2">
-                    <span class="text-2xl font-bold text-gray-800">JIT Sports</span>
+                 <a href="{{ url_for('landing') }}" class="flex items-center justify-center space-x-3 group mb-6">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden">
+                            <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain">
+                        </div>
+                    <span class="text-2xl font-bold nav-brand">JIT Sports</span>
                 </a>
             </div>
 
-            <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200/80">
-                <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-14 h-14 bg-teal-100 rounded-full mb-4">
-                        <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <div class="glass-card p-8 rounded-3xl shadow-2xl">
+                <div class="text-center mb-8">
+                    <div class="relative inline-flex items-center justify-center mb-6">
+                        <div class="absolute inset-0 pulse-ring bg-primary-400 rounded-full opacity-30"></div>
+                        <div class="relative inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full floating-email shadow-xl">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900">Check Your Email</h2>
-                    <p class="text-sm text-gray-600 mt-2">
-                        We sent a 6-digit code to <br> <span class="font-semibold text-teal-600">{{ email }}</span>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">Check Your Email</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        We've sent a 6-digit verification code to <br> 
+                        <span class="font-semibold text-primary-600 text-lg">{{ email }}</span>
                     </p>
+                    <p class="text-sm text-gray-500 mt-2">Code expires in 5 minutes</p>
                 </div>
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
-                        <div class="mb-4 p-3 rounded-md flex items-center {{ 'bg-red-50 border border-red-200 text-red-700' if category == 'danger' else 'bg-blue-50 border border-blue-200 text-blue-700' }} text-sm">
+                        <div class="mb-6 p-4 rounded-xl flex items-start space-x-3 {{ 'bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700' if category == 'danger' else 'bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 text-blue-700' }}">
                             {% if category == 'danger' %}
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
                             {% else %}
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
                             {% endif %}
-                            {{ message }}
+                            <div class="flex-1">
+                                <p class="font-medium text-sm">{{ message }}</p>
+                            </div>
                         </div>
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
 
-                <form action="{{ url_for('verify_otp') }}" method="POST" class="space-y-6">
+                <form action="{{ url_for('verify_otp') }}" method="POST" class="space-y-8">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div>
-                        <label for="otp" class="sr-only">Enter 6-Digit Code</label>
-                        <input type="text" id="otp" name="otp" class="block w-full text-center px-3 py-3 text-2xl border border-gray-300 rounded-md placeholder-gray-400 tracking-[0.5em] focus:outline-none focus:ring-teal-500 focus:border-teal-500" required maxlength="6" placeholder="------" autocomplete="one-time-code">
+                        <label for="otp" class="block text-sm font-semibold text-gray-700 mb-4 text-center">Enter 6-Digit Verification Code</label>
+                        <input type="text" id="otp" name="otp" 
+                               class="otp-input block w-full px-4 py-5 text-gray-900 placeholder-gray-400 border-2 border-gray-200 rounded-2xl bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 hover:border-primary-300" 
+                               required maxlength="6" placeholder="● ● ● ● ● ●" autocomplete="one-time-code">
                     </div>
-                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
-                        Verify & Login
+                    <button type="submit" class="group w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-2xl shadow-lg text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                        <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Verify & Continue
                     </button>
                 </form>
 
-                 <div class="mt-6 text-center text-sm">
-                    <p class="text-gray-500">Didn't receive it? 
-                        <a href="{{ url_for('login') }}" class="font-medium text-teal-600 hover:text-teal-500">
-                            Try sending again.
-                        </a>
-                    </p>
+                 <div class="mt-8 text-center">
+                    <p class="text-sm text-gray-500 mb-4">Didn't receive the code?</p>
+                    <a href="{{ url_for('login') }}" class="inline-flex items-center font-medium text-primary-600 hover:text-primary-700 transition-colors duration-300 group">
+                        <svg class="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Resend Code
+                    </a>
                 </div>
             </div>
         </div>
     </main>
+
+    <script>
+        // Auto-format OTP input - allow alphanumeric characters
+        document.getElementById('otp').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^a-zA-Z0-9]/g, ''); // Allow letters and numbers only
+            if (value.length > 6) value = value.slice(0, 6);
+            e.target.value = value.toUpperCase(); // Convert to uppercase for consistency
+        });
+
+        // Auto-focus and submit on complete
+        document.getElementById('otp').addEventListener('input', function(e) {
+            if (e.target.value.length === 6) {
+                setTimeout(() => {
+                    e.target.form.submit();
+                }, 500);
+            }
+        });
+    </script>
 </body>
 </html>

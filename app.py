@@ -261,10 +261,17 @@ def verify_otp():
             flash('Invalid or expired OTP.', 'danger')
     return render_template('verify_otp.html', email=username)
 
+# --- Logout Routes ---
+@app.route('/logout/confirm')
+@login_required
+def logout_confirm():
+    return render_template('logout_confirm.html')
+
 @app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
+    flash('You have been successfully logged out.', 'info')
     return redirect(url_for('landing'))
 
 # --- Profile Route ---
@@ -299,14 +306,27 @@ def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
 
-    users = User.query.order_by(User.username).all()
-    bookings = db.session.query(Booking, User, Game)\
-        .join(User, Booking.user_id == User.id)\
-        .join(Game, Booking.game_id == Game.id)\
-        .order_by(Booking.booking_time.desc())\
-        .all()
+    try:
+        users = User.query.order_by(User.username).all()
+        bookings = db.session.query(Booking, User, Game)\
+            .join(User, Booking.user_id == User.id)\
+            .join(Game, Booking.game_id == Game.id)\
+            .order_by(Booking.booking_time.desc())\
+            .all()
         
-    return render_template('admin_dashboard.html', users=users, bookings=bookings)
+        return render_template('admin_dashboard.html', 
+                             users=users, 
+                             bookings=bookings,
+                             timezone=timezone,
+                             timedelta=timedelta)
+    except Exception as e:
+        print(f"Admin dashboard error: {e}")
+        flash(f'Database error: {str(e)}', 'danger')
+        return render_template('admin_dashboard.html', 
+                             users=[], 
+                             bookings=[],
+                             timezone=timezone,
+                             timedelta=timedelta)
 
 @app.route('/admin/logout', methods=['POST'])
 def admin_logout():

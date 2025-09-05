@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}Logout Confirmation - JIT Sports{% endblock %}
+
+{% block head_styles %}
+<style>
+    .logout-gradient {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+    }
+    .confirmation-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+    .confirmation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    .logout-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        animation: pulse-logout 2s ease-in-out infinite;
+    }
+    @keyframes pulse-logout {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    .btn-cancel {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        transition: all 0.3s ease;
+    }
+    .btn-cancel:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(107, 114, 128, 0.3);
+    }
+    .btn-logout {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        transition: all 0.3s ease;
+    }
+    .btn-logout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+    }
+    .floating-shapes {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.02));
+        animation: float 8s ease-in-out infinite;
+    }
+    .shape:nth-child(1) { width: 100px; height: 100px; top: 15%; left: 10%; animation-delay: 0s; }
+    .shape:nth-child(2) { width: 60px; height: 60px; top: 60%; right: 15%; animation-delay: -3s; }
+    .shape:nth-child(3) { width: 80px; height: 80px; bottom: 25%; left: 30%; animation-delay: -6s; }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-25px) rotate(3deg); }
+        66% { transform: translateY(12px) rotate(-3deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="logout-gradient min-h-screen relative">
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
+    <div class="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="logout-icon w-20 h-20 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-2xl">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Confirm Logout</h1>
+                <p class="text-gray-600">Are you sure you want to sign out of your account?</p>
+            </div>
+
+            <div class="confirmation-card p-8 rounded-3xl shadow-2xl">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">You're about to logout</h2>
+                    <p class="text-gray-600 text-sm">This will end your current session and you'll need to login again to access your account.</p>
+                </div>
+
+                {% if current_user.is_authenticated %}
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 mb-6">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3">
+                            <span class="text-white font-semibold text-sm">{{ current_user.username[0].upper() }}</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-blue-900">{{ current_user.username }}</p>
+                            <p class="text-sm text-blue-700">Currently signed in</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{{ url_for('home') }}" class="btn-cancel flex-1 inline-flex items-center justify-center px-6 py-3 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Cancel
+                    </a>
+                    
+                    <form action="{{ url_for('logout') }}" method="POST" class="flex-1">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn-logout w-full inline-flex items-center justify-center px-6 py-3 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            Yes, Logout
+                        </button>
+                    </form>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-gray-500">Your session data will be cleared securely</p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <p class="text-sm text-gray-500">
+                    Need help? 
+                    <a href="#" class="text-blue-600 hover:text-blue-700 font-medium transition-colors duration-300">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
