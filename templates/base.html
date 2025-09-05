@@ -1,25 +1,107 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}JIT Sports{% endblock %}</title>
+    <title>{% block title %}JIT Sports Booking{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        'sans': ['Inter', 'sans-serif'],
-                    }
+                    fontFamily: { 'sans': ['Inter', 'sans-serif'], }
                 }
             }
         }
     </script>
-    {% block head_styles %}{% endblock %}
+    <style>
+        .nav-logout-btn { background: none; border: none; cursor: pointer; padding: 0; margin: 0; display: flex; align-items: center; }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
+            flex-direction: column; gap: 1rem;
+        }
+        .spinner {
+            width: 48px; height: 48px; border: 4px solid #e2e8f0;
+            border-top-color: #0d9488; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text { font-weight: 500; color: #475569; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    {% block head %}{% endblock %}
 </head>
-<body class="h-full font-sans text-gray-800">
-    {% block content %}{% endblock %}
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="loading-text">Verifying & Logging In...</p>
+    </div>
+
+    <div class="min-h-full">
+        <nav class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <a href="{{ url_for('landing') }}" class="flex items-center space-x-2">
+                        <span class="text-xl font-bold text-gray-800">JIT Sports Booking</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="{{ url_for('home') }}" class="text-sm font-semibold text-teal-600">Home</a>
+                        <a href="{{ url_for('profile') }}" class="text-sm font-semibold text-gray-600 hover:text-teal-600 transition-colors">Profile</a>
+                        <form action="{{ url_for('logout') }}" method="POST" class="inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="nav-logout-btn text-sm font-semibold text-gray-600 hover:text-teal-600 transition-colors">Logout</button>
+                        </form>
+                    </div>
+
+                    <div class="md:hidden">
+                        <button id="menu-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500">
+                           <span class="sr-only">Open main menu</span>
+                           <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="{{ url_for('home') }}" class="block px-3 py-2 rounded-md text-base font-medium text-teal-700 bg-teal-50">Home</a>
+                    <a href="{{ url_for('profile') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100">Profile</a>
+                    <form action="{{ url_for('logout') }}" method="POST" class="block">
+                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                         <button type="submit" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="p-4 mb-6 text-sm rounded-lg {{ 'text-green-800 bg-green-100' if category == 'success' else 'text-red-800 bg-red-100' }}" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function() {
+                var mobileMenu = document.getElementById('mobile-menu');
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
 </body>
 </html>
+

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Admin Login{% endblock %}
+
+{% block content %}
+<style>
+    .admin-login-container {
+        max-width: 450px;
+        margin: 4rem auto;
+        padding: 2.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+    .admin-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #1e293b;
+    }
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        transition: all 0.2s ease;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* --- Mobile Responsive Styles --- */
+    @media (max-width: 768px) {
+        .admin-login-container {
+            margin: 2rem 1rem;
+            padding: 1.5rem;
+        }
+        .admin-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="admin-login-container">
+    <h2 class="admin-title">Admin Access</h2>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div>
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" required class="form-input">
+        </div>
+        <button type="submit" class="w-full mt-6 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors">Login</button>
+    </form>
+</div>
+{% endblock %}
+

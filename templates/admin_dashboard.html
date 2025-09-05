@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .dashboard-title { font-size: 2.25rem; font-weight: 700; }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .download-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white; padding: 0.75rem 1.5rem; border-radius: 10px;
+        text-decoration: none; font-weight: 600; transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    }
+    .download-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); }
+    .logout-btn {
+        background-color: #f1f5f9; color: #475569;
+        padding: 0.75rem 1.5rem; border-radius: 10px;
+        font-weight: 600; transition: all 0.2s ease; border: 1px solid #e2e8f0;
+        cursor: pointer;
+    }
+    .logout-btn:hover { background-color: #e2e8f0; }
+    .table-container { 
+        background: white; 
+        border-radius: 16px; 
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+        padding: 2rem; 
+        margin-bottom: 2rem;
+        overflow-x: auto; /* Makes table scrollable on small screens */
+    }
+    .table-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    th { font-weight: 600; color: #64748b; font-size: 0.875rem; text-transform: uppercase; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background-color: #f8fafc; }
+
+    /* --- Mobile Responsive Styles --- */
+    @media (max-width: 768px) {
+        .dashboard-container { padding: 0 0.5rem; margin-top: 1rem; }
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .dashboard-title { font-size: 1.75rem; }
+        .table-container { padding: 1rem; }
+        .table-title { font-size: 1.25rem; }
+        th, td { padding: 0.5rem; }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Admin Dashboard</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('download_report') }}" class="download-btn">Download Report (PDF)</a>
+            <form action="{{ url_for('admin_logout') }}" method="POST">
+                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h2 class="table-title">All Users ({{ users|length }})</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username (Email)</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="2">No users found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h2 class="table-title">All Bookings ({{ bookings|length }})</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Game</th>
+                    <th>Booking Time (IST)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking, user, game in bookings %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ game.name }}</td>
+                    <td>{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%Y-%m-%d %I:%M %p') }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3">No bookings found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,3 +1,4 @@
+# Import necessary libraries
 import os
 import secrets
 import smtplib
@@ -6,7 +7,7 @@ import json
 from datetime import datetime, date, timedelta, timezone, time
 from dotenv import load_dotenv, find_dotenv
 from flask import (Flask, render_template, request, redirect, url_for,
-                   flash, session)
+                   flash, session, Response)
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
@@ -15,6 +16,10 @@ from flask_wtf.csrf import CSRFProtect
 import uuid
 from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
 from sqlalchemy.orm import relationship
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
 
 load_dotenv(find_dotenv(), override=True)
 
@@ -25,6 +30,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'a-default-secret-key-for-dev')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['ADMIN_PASSWORD'] = "441106"
 # SMTP Configuration
 app.config['SMTP_SERVER'] = os.getenv('SMTP_SERVER')
 app.config['SMTP_PORT'] = int(os.getenv('SMTP_PORT', 587))
@@ -93,16 +99,12 @@ def send_otp_email(recipient_email, otp):
         return False
 
 def send_booking_confirmation_email(recipient_email, game_name, booking_dt):
-    """Sends a booking confirmation email to the user."""
     ist_tz = timezone(timedelta(hours=5, minutes=30))
     booking_dt_ist = booking_dt.astimezone(ist_tz)
-    
     date_str = booking_dt_ist.strftime('%A, %B %d, %Y')
     time_str = booking_dt_ist.strftime('%I:%M %p')
-
     msg = EmailMessage()
     msg.set_content(f"""Hi {recipient_email.split('@')[0]},
-
 Your booking is confirmed!
 
 Game: {game_name}
@@ -110,7 +112,6 @@ Date: {date_str}
 Time: {time_str}
 
 We look forward to seeing you.
-
 Thanks,
 The Sports Room Team""")
     msg['Subject'] = f'Booking Confirmation for {game_name}'
@@ -127,29 +128,14 @@ The Sports Room Team""")
         print(f"--- SMTP Booking Confirmation ERROR: {e} ---")
         return False
 
-def seed_games():
-    """Populates the database with the initial set of games if it's empty."""
-    if Game.query.count() == 0:
-        games_data = [
-            {'name': 'Table Tennis', 'max_players': 4, 'duration_minutes': 60},
-            {'name': 'Badminton', 'max_players': 4, 'duration_minutes': 60},
-            {'name': 'Chess', 'max_players': 2, 'duration_minutes': 45},
-            {'name': 'Carrom', 'max_players': 4, 'duration_minutes': 45},
-            {'name': 'Pool', 'max_players': 4, 'duration_minutes': 60},
-        ]
-        for g in games_data:
-            db.session.add(Game(**g))
-        db.session.commit()
-
-# Make datetime object available in all templates
+# --- Context Processors ---
 @app.context_processor
 def inject_now():
-    return {'now_utc': datetime.now(timezone.utc)}
+    return {'now_utc': datetime.now(timezone.utc), 'timezone': timezone, 'timedelta': timedelta}
 
 # --- Main Routes ---
 @app.route('/')
 def landing():
-    """Serves the landing page for guests."""
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     return render_template('landing.html')
@@ -157,15 +143,12 @@ def landing():
 @app.route('/home')
 @login_required
 def home():
-    """Serves the main dashboard for authenticated users."""
     games = Game.query.order_by(Game.name).all()
-    
     stats = {
         'total_games': Game.query.count(),
         'user_bookings': Booking.query.filter_by(user_id=current_user.id).count(),
         'today_bookings': Booking.query.filter(db.func.date(Booking.booking_time) == date.today()).count()
     }
-    
     return render_template('home.html', games=games, stats=stats)
 
 @app.route('/book/<int:game_id>', methods=['GET', 'POST'])
@@ -185,9 +168,9 @@ def book_game(game_id):
         weekday = selected_date.weekday()
 
         valid_slots = []
-        if 0 <= weekday <= 3: # Monday to Thursday
+        if 0 <= weekday <= 3:
             valid_slots = [time(16, 0), time(16, 30)]
-        elif weekday == 4: # Friday
+        elif weekday == 4:
             valid_slots = [time(14, 0), time(14, 30), time(15, 0), time(15, 30), time(16, 0), time(16, 30)]
 
         if selected_time not in valid_slots:
@@ -205,11 +188,7 @@ def book_game(game_id):
             flash(f'{game.name} is already booked for this time. Please choose another slot.', 'danger')
             return redirect(url_for('book_game', game_id=game_id))
 
-        new_booking = Booking(
-            user_id=current_user.id,
-            game_id=game_id,
-            booking_time=booking_dt
-        )
+        new_booking = Booking(user_id=current_user.id, game_id=game_id, booking_time=booking_dt)
         db.session.add(new_booking)
         db.session.commit()
         
@@ -218,17 +197,22 @@ def book_game(game_id):
         
         return redirect(url_for('profile'))
 
-    # GET request logic
+    today = date.today()
+    next_seven_days = []
+    for i in range(7):
+        day = today + timedelta(days=i)
+        next_seven_days.append({
+            "iso_date": day.isoformat(),
+            "day_name": day.strftime("%a"),
+            "short_date": day.strftime("%d %b")
+        })
+    
     now = datetime.now(timezone.utc)
-    # Fetch all future bookings for this game to disable them on the frontend
-    existing_bookings_query = Booking.query.filter(
-        Booking.game_id == game_id,
-        Booking.booking_time >= now
-    ).all()
+    existing_bookings_query = Booking.query.filter(Booking.game_id == game_id, Booking.booking_time >= now).all()
     booked_slots = [b.booking_time.isoformat() for b in existing_bookings_query]
     
-    return render_template('book_game.html', game=game, today=date.today().isoformat(), booked_slots_json=json.dumps(booked_slots))
-    
+    return render_template('book_game.html', game=game, next_seven_days=next_seven_days, booked_slots_json=json.dumps(booked_slots))
+
 # --- Auth Routes ---
 @app.route('/register')
 def register():
@@ -288,22 +272,114 @@ def logout():
 @login_required
 def profile():
     bookings = Booking.query.filter_by(user_id=current_user.id).order_by(Booking.booking_time.desc()).all()
-    
     stats = {
         'total_games': Game.query.count(),
         'user_bookings': len(bookings),
         'today_bookings': Booking.query.filter(db.func.date(Booking.booking_time) == date.today()).count()
     }
-    
     return render_template('profile.html', bookings=bookings, stats=stats, user=current_user)
+
+# --- Admin Routes ---
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if session.get('admin_logged_in'):
+        return redirect(url_for('admin_dashboard'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        if password == app.config['ADMIN_PASSWORD']:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Incorrect password.', 'danger')
+    return render_template('admin_login.html')
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    users = User.query.order_by(User.username).all()
+    bookings = db.session.query(Booking, User, Game)\
+        .join(User, Booking.user_id == User.id)\
+        .join(Game, Booking.game_id == Game.id)\
+        .order_by(Booking.booking_time.desc())\
+        .all()
+        
+    return render_template('admin_dashboard.html', users=users, bookings=bookings)
+
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    flash('You have been logged out of the admin panel.', 'info')
+    return redirect(url_for('landing'))
+
+@app.route('/admin/download_report')
+def download_report():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    p.drawString(inch, height - inch, "Sports Room Booking - Admin Report")
+    p.drawString(inch, height - inch - 20, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    y_position = height - inch * 2
+    p.drawString(inch, y_position, "Registered Users")
+    y_position -= 20
+    p.line(inch, y_position, width - inch, y_position)
+    y_position -= 15
+    
+    users = User.query.order_by(User.username).all()
+    for user in users:
+        p.drawString(inch * 1.1, y_position, f"- {user.username} (Role: {user.role})")
+        y_position -= 15
+        if y_position < inch:
+            p.showPage()
+            y_position = height - inch
+
+    y_position -= 30
+    p.drawString(inch, y_position, "All Bookings")
+    y_position -= 20
+    p.line(inch, y_position, width - inch, y_position)
+    y_position -= 15
+
+    bookings = db.session.query(Booking, User, Game)\
+        .join(User, Booking.user_id == User.id)\
+        .join(Game, Booking.game_id == Game.id)\
+        .order_by(Booking.booking_time.desc())\
+        .all()
+    
+    ist_tz = timezone(timedelta(hours=5, minutes=30))
+    for booking, user, game in bookings:
+        booking_dt_ist = booking.booking_time.astimezone(ist_tz)
+        date_str = booking_dt_ist.strftime('%Y-%m-%d %I:%M %p')
+        text = f"- {user.username} booked {game.name} for {date_str}"
+        p.drawString(inch * 1.1, y_position, text)
+        y_position -= 15
+        if y_position < inch:
+            p.showPage()
+            y_position = height - inch
+            
+    p.save()
+    buffer.seek(0)
+    
+    return Response(
+        buffer,
+        mimetype='application/pdf',
+        headers={'Content-Disposition': 'attachment;filename=admin_report.pdf'}
+    )
 
 # The following block is for local development only and will not be run by Gunicorn on Render
 if __name__ == '__main__':
     with app.app_context():
         # These commands should be run separately in a production environment
-        print("Creating database tables...")
+        # using a one-time script or shell command.
+        print("Creating database tables if they don't exist...")
         db.create_all()
-        print("Seeding initial game data...")
-        seed_games()
+        print("Seeding initial game data if the table is empty...")
+        # seed_games() # You can uncomment this if you want to seed games on every local run
     app.run(debug=True)
 
