@@ -73,6 +73,18 @@
 {% block content %}
 <main class="flex flex-col justify-center items-center min-h-full px-4 sm:px-6 lg:px-8 py-12">
     <div class="w-full max-w-2xl">
+        
+        <!-- NEW: Hidden container for Flask flash messages -->
+        <div id="flash-messages" class="hidden">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div data-category="{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
         <div class="mb-6">
              <a href="{{ url_for('home') }}" class="group inline-flex items-center font-semibold text-primary-600 hover:text-primary-700 transition-all duration-300">
                 <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +164,28 @@
     </div>
 </main>
 
+<!-- NEW: Pop-up Modal HTML -->
+<div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
+        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h3 class="mt-5 text-lg leading-6 font-bold text-gray-900" id="modalTitle">Booking Unavailable</h3>
+        <div class="mt-2">
+            <p class="text-sm text-gray-600" id="modalMessage">This slot has already been booked.</p>
+        </div>
+        <div class="mt-6">
+            <button type="button" id="closeModalBtn" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-3 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
         const dateInput = document.getElementById('booking_date');
         const timeSelect = document.getElementById('booking_time');
@@ -232,77 +265,25 @@
 </script>
 
 <script>
+    // NEW: This script handles showing the pop-up modal for error messages.
     document.addEventListener('DOMContentLoaded', function() {
-        const dateInput = document.getElementById('booking_date');
-        const timeSelect = document.getElementById('booking_time');
-        const submitButton = document.getElementById('submit-btn');
-        const bookingForm = document.getElementById('bookingForm');
-        const bookedSlots = {{ booked_slots_json|safe }};
+        const modal = document.getElementById('errorModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalMessage = document.getElementById('modalMessage');
+        
+        // Find the flash message with the 'danger' category from the server
+        const errorMessageDiv = document.querySelector('#flash-messages div[data-category="danger"]');
 
-        function updateAvailableSlots() {
-            const selectedDateStr = dateInput.value;
-            if (!selectedDateStr) {
-                timeSelect.innerHTML = '<option value="">Select a date first</option>';
-                timeSelect.disabled = true;
-                submitButton.disabled = true;
-                return;
-            }
-            const parts = selectedDateStr.split('-').map(p => parseInt(p, 10));
-            const selectedDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-            const weekday = selectedDate.getUTCDay();
-            let potentialSlots = [];
-            if (weekday >= 1 && weekday <= 4) {
-                potentialSlots = ['16:00', '16:30'];
-            } else if (weekday === 5) {
-                potentialSlots = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
-            }
-            timeSelect.innerHTML = '';
-            if (potentialSlots.length === 0) {
-                timeSelect.innerHTML = '<option value="">No slots on weekends</option>';
-                timeSelect.disabled = true;
-                submitButton.disabled = true;
-                return;
-            }
-            let hasAvailableSlots = false;
-            const now = new Date();
-            potentialSlots.forEach(slot => {
-                const [hours, minutes] = slot.split(':').map(p => parseInt(p, 10));
-                const slotDateTime = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], hours, minutes));
-                if (slotDateTime < now) {
-                    return; 
-                }
-                const slotISO = slotDateTime.toISOString();
-                const option = document.createElement('option');
-                option.value = slot;
-                if (bookedSlots.includes(slotISO)) {
-                    option.textContent = `${slot} - Booked`;
-                    option.disabled = true;
-                    option.style.color = '#ef4444';
-                } else {
-                    option.textContent = slot;
-                    option.disabled = false;
-                    hasAvailableSlots = true;
-                }
-                timeSelect.appendChild(option);
-            });
-            if (timeSelect.options.length === 0) {
-                timeSelect.innerHTML = '<option value="">No available slots today</option>';
-            }
-            timeSelect.disabled = false;
-            submitButton.disabled = !hasAvailableSlots;
+        if (errorMessageDiv) {
+            // If an error message exists, update the modal text and show it
+            modalMessage.textContent = errorMessageDiv.textContent;
+            modal.classList.remove('hidden');
         }
-        bookingForm.addEventListener('submit', function() {
-            submitButton.classList.add('loading');
-            submitButton.querySelector('.btn-text').textContent = 'Booking...';
-            submitButton.disabled = true;
+
+  
+        closeModalBtn.addEventListener('click', function() {
+            modal.classList.add('hidden');
         });
-        timeSelect.addEventListener('change', function() {
-            submitButton.disabled = !timeSelect.value || timeSelect.options[timeSelect.selectedIndex].disabled;
-        });
-        dateInput.addEventListener('change', updateAvailableSlots);
-        if(dateInput.value) {
-            updateAvailableSlots();
-        }
     });
 </script>
 {% endblock %}
