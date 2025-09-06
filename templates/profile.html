@@ -149,18 +149,21 @@
                             <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
-                            <span class="font-medium">{{ booking.booking_time.strftime('%A, %B %d, %Y') }}</span>
+                            <!-- CORRECTED: This ensures time is converted to IST before displaying the date -->
+                            <span class="font-medium">{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d, %Y') }}</span>
                         </div>
                         <div class="flex items-center text-gray-600">
                             <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <span class="font-medium">{{ booking.booking_time.strftime('%I:%M %p') }}</span>
+                            <!-- CORRECTED: This ensures time is converted to IST before displaying the time -->
+                            <span class="font-medium">{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%I:%M %p') }}</span>
                         </div>
                     </div>
                     
                     <div class="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div class="text-xs text-gray-500">
+                            <!-- This displays the creation date, which is fine in UTC -->
                             Booked on {{ booking.created_at.strftime('%b %d, %Y') }}
                         </div>
                         <div class="flex items-center text-primary-600 text-sm font-medium">
@@ -197,3 +200,4 @@
     </div>
 </main>
 {% endblock %}
+

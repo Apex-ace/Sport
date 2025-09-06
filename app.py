@@ -184,7 +184,10 @@ def book_game(game_id):
             flash('The selected time is not a valid slot for this day.', 'danger')
             return redirect(url_for('book_game', game_id=game_id))
 
-        booking_dt = datetime.combine(selected_date, selected_time).astimezone(timezone.utc)
+        ist_tz = timezone(timedelta(hours=5, minutes=30))
+        naive_dt = datetime.combine(selected_date, selected_time)
+        booking_dt_in_ist = naive_dt.replace(tzinfo=ist_tz)
+        booking_dt = booking_dt_in_ist.astimezone(timezone.utc)
         
         if booking_dt < datetime.now(timezone.utc):
             flash('Cannot book a slot in the past.', 'danger')
@@ -348,7 +351,11 @@ def profile():
         'user_bookings': len(bookings),
         'today_bookings': Booking.query.filter(db.func.date(Booking.booking_time) == date.today()).count()
     }
-    return render_template('profile.html', bookings=bookings, stats=stats, user=current_user)
+    # The context_processor handles passing timezone info, so no need to pass it explicitly here.
+    return render_template('profile.html', 
+                         bookings=bookings, 
+                         stats=stats, 
+                         user=current_user)
 
 # --- Admin Routes ---
 @app.route('/admin/login', methods=['GET', 'POST'])
