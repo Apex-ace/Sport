@@ -1,289 +1,135 @@
 {% extends 'base.html' %}
-
-{% block title %}Book {{ game.name }} - {{ super() }}{% endblock %}
+{% block title %}Book {{ game.name }}{% endblock %}
 
 {% block head_styles %}
 <style>
     .form-select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         background-position: right 1rem center;
         background-repeat: no-repeat;
         background-size: 1.5em 1.5em;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
     }
     .loading-spinner { display: none; }
     .btn-book.loading .loading-spinner { display: inline-block; }
-    .btn-book.loading { pointer-events: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-spinner { animation: spin 1s linear infinite; }
-    
-    .booking-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 2px solid transparent;
-        background-clip: padding-box;
-        position: relative;
-    }
-    .booking-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #14b8a6, #0d9488);
-        border-radius: 1rem 1rem 0 0;
-    }
-    
-    .input-group {
-        position: relative;
-    }
-    .input-group input, .input-group select {
-        transition: all 0.3s ease;
-        border: 2px solid #e2e8f0;
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-    }
-    .input-group input:focus, .input-group select:focus {
-        border-color: #14b8a6;
-        background: white;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(20, 184, 166, 0.15);
-    }
-    .input-group label {
-        transition: all 0.3s ease;
-    }
-    .input-group:focus-within label {
-        color: #14b8a6;
-        transform: translateY(-2px);
-    }
-    
-    .game-icon {
-        background: linear-gradient(135deg, #14b8a6, #0d9488);
-        animation: pulse-icon 2s ease-in-out infinite;
-    }
-    @keyframes pulse-icon {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="flex flex-col justify-center items-center min-h-full px-4 sm:px-6 lg:px-8 py-12">
-    <div class="w-full max-w-2xl">
-        
-        <!-- NEW: Hidden container for Flask flash messages -->
-        <div id="flash-messages" class="hidden">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div data-category="{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        <div class="mb-6">
-             <a href="{{ url_for('home') }}" class="group inline-flex items-center font-semibold text-primary-600 hover:text-primary-700 transition-all duration-300">
-                <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-                Back to Dashboard
-            </a>
-        </div>
-        
-        <div class="booking-card p-8 md:p-10 rounded-3xl shadow-2xl border border-gray-100">
-            <div class="text-center mb-10">
-                <div class="game-icon w-20 h-20 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-xl">
-                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden">
-                            <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain">
-                        </div>
-                </div>
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Book {{ game.name }}</h1>
-                <p class="text-gray-600 text-lg leading-relaxed">Select your preferred date and time slot to secure your booking.</p>
-            </div>
-
-            <form method="POST" action="{{ url_for('book_game', game_id=game.id) }}" id="bookingForm" class="space-y-8">
+<main class="flex justify-center items-center min-h-full p-4 sm:p-6">
+    <div class="w-full max-w-xl sm:max-w-2xl">
+        <div class="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-2xl">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-6">
+                Book {{ game.name }}
+            </h1>
+            
+            <form method="POST" action="{{ url_for('book_game', game_id=game.id) }}" id="bookingForm" class="space-y-6 sm:space-y-8">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="input-group">
-                        <label for="booking_date" class="block text-sm font-semibold text-gray-700 mb-3">
-                            <svg class="w-5 h-5 inline mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            Select Date
-                        </label>
-                        <input type="date" id="booking_date" name="booking_date" required min="{{ today }}"
-                               class="block w-full px-4 py-4 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none text-lg font-medium">
+
+                <!-- Date + Time Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                    <!-- Date Picker -->
+                    <div>
+                        <label for="booking_date" class="block text-sm sm:text-base font-semibold mb-2 sm:mb-3">Select Date</label>
+                        <input type="date" id="booking_date" name="booking_date" required min="{{ today }}" 
+                               class="w-full px-3 sm:px-4 py-3 sm:py-4 rounded-2xl border-2 text-sm sm:text-base">
                     </div>
                     
-                    <div class="input-group">
-                        <label for="booking_time" class="block text-sm font-semibold text-gray-700 mb-3">
-                            <svg class="w-5 h-5 inline mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Available Time Slots
-                        </label>
-                        <select id="booking_time" name="booking_time" required disabled
-                                class="form-select block w-full px-4 py-4 rounded-2xl text-gray-900 focus:outline-none text-lg font-medium disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed">
-                            <option value="">Please select a date first</option>
+                    <!-- Time Slots -->
+                    <div>
+                        <label for="booking_time" class="block text-sm sm:text-base font-semibold mb-2 sm:mb-3">Available Time Slots</label>
+                        <select id="booking_time" name="booking_time" required disabled 
+                                class="form-select w-full px-3 sm:px-4 py-3 sm:py-4 rounded-2xl border-2 disabled:bg-gray-100 text-sm sm:text-base">
+                            <option value="">Select a date first</option>
                         </select>
                     </div>
                 </div>
-                
-                <div class="pt-6">
-                    <button type="submit" id="submit-btn" disabled
-                            class="btn-book w-full flex justify-center items-center py-5 px-8 border border-transparent rounded-2xl shadow-xl text-lg font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
-                        <span class="loading-spinner w-6 h-6 mr-3 border-3 border-white border-t-transparent rounded-full"></span>
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+
+                <!-- Submit Button -->
+                <div class="pt-4 sm:pt-6">
+                    <button type="submit" id="submit-btn" disabled 
+                            class="btn-book w-full flex justify-center items-center py-4 sm:py-5 px-6 sm:px-8 rounded-2xl shadow-xl font-bold text-white bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-sm sm:text-base">
+                        <span class="loading-spinner w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 border-t-transparent rounded-full animate-spin border-4"></span>
                         <span class="btn-text">Confirm Booking</span>
                     </button>
                 </div>
             </form>
-            
-            <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200">
-                <h3 class="font-semibold text-blue-900 mb-3 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Booking Information
-                </h3>
-                <ul class="text-blue-800 text-sm space-y-1">
-                    <li>• Monday-Thursday: 4:00 PM - 4:30 PM slots available</li>
-                    <li>• Friday: 2:00 PM - 4:30 PM slots available</li>
-                    <li>• Weekends: No bookings available</li>
-                    <li>• You'll receive email confirmation upon successful booking</li>
-                </ul>
-            </div>
         </div>
     </div>
 </main>
 
-<!-- NEW: Pop-up Modal HTML -->
-<div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
-        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-        </div>
-        <h3 class="mt-5 text-lg leading-6 font-bold text-gray-900" id="modalTitle">Booking Unavailable</h3>
-        <div class="mt-2">
-            <p class="text-sm text-gray-600" id="modalMessage">This slot has already been booked.</p>
-        </div>
-        <div class="mt-6">
-            <button type="button" id="closeModalBtn" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-3 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                OK
-            </button>
-        </div>
-    </div>
-</div>
-
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('booking_date');
+    const timeSelect = document.getElementById('booking_time');
+    const submitButton = document.getElementById('submit-btn');
+    const bookedSlots = {{ booked_slots_json|safe }};
+    const isNewUser = {{ is_new_user|safe }};
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const dateInput = document.getElementById('booking_date');
-        const timeSelect = document.getElementById('booking_time');
-        const submitButton = document.getElementById('submit-btn');
-        const bookingForm = document.getElementById('bookingForm');
-        const bookedSlots = {{ booked_slots_json|safe }};
-
-        function updateAvailableSlots() {
-            const selectedDateStr = dateInput.value;
-            if (!selectedDateStr) {
-                timeSelect.innerHTML = '<option value="">Please select a date first</option>';
-                timeSelect.disabled = true;
-                submitButton.disabled = true;
-                return;
-            }
-            const parts = selectedDateStr.split('-').map(p => parseInt(p, 10));
-            const selectedDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-            const weekday = selectedDate.getUTCDay();
-            let potentialSlots = [];
-            if (weekday >= 1 && weekday <= 4) {
-                potentialSlots = ['16:00', '16:30'];
-            } else if (weekday === 5) {
-                potentialSlots = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
-            }
-            timeSelect.innerHTML = '';
-            if (potentialSlots.length === 0) {
-                timeSelect.innerHTML = '<option value="">No slots available on weekends</option>';
-                timeSelect.disabled = true;
-                submitButton.disabled = true;
-                return;
-            }
-            let hasAvailableSlots = false;
-            const now = new Date();
-            potentialSlots.forEach(slot => {
-                const [hours, minutes] = slot.split(':').map(p => parseInt(p, 10));
-                const slotDateTime = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], hours, minutes));
-                if (slotDateTime < now) {
-                    return; 
-                }
-                const slotISO = slotDateTime.toISOString();
-                const option = document.createElement('option');
-                option.value = slot;
-                if (bookedSlots.includes(slotISO)) {
-                    option.textContent = `${slot} - Already Booked`;
-                    option.disabled = true;
-                    option.style.color = '#ef4444';
-                } else {
-                    option.textContent = slot;
-                    option.disabled = false;
-                    hasAvailableSlots = true;
-                }
-                timeSelect.appendChild(option);
-            });
-            if (timeSelect.options.length === 0) {
-                timeSelect.innerHTML = '<option value="">No available slots for today</option>';
-            }
-            timeSelect.disabled = false;
-            submitButton.disabled = !hasAvailableSlots;
-        }
-        
-        bookingForm.addEventListener('submit', function() {
-            submitButton.classList.add('loading');
-            submitButton.querySelector('.btn-text').textContent = 'Processing...';
+    function updateAvailableSlots() {
+        const selectedDateStr = dateInput.value;
+        if (!selectedDateStr) {
+            timeSelect.innerHTML = '<option value="">Select a date first</option>';
+            timeSelect.disabled = true;
             submitButton.disabled = true;
-        });
-        
-        timeSelect.addEventListener('change', function() {
-            submitButton.disabled = !timeSelect.value || timeSelect.options[timeSelect.selectedIndex].disabled;
-        });
-        
-        dateInput.addEventListener('change', updateAvailableSlots);
-        
-        if(dateInput.value) {
-            updateAvailableSlots();
+            return;
         }
-    });
-</script>
-
-<script>
-    // NEW: This script handles showing the pop-up modal for error messages.
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('errorModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modalMessage = document.getElementById('modalMessage');
         
-        // Find the flash message with the 'danger' category from the server
-        const errorMessageDiv = document.querySelector('#flash-messages div[data-category="danger"]');
+        const selectedDate = new Date(selectedDateStr + 'T00:00:00Z');
+        const weekday = selectedDate.getUTCDay(); // Sunday = 0, ..., Friday = 5
 
-        if (errorMessageDiv) {
-            // If an error message exists, update the modal text and show it
-            modalMessage.textContent = errorMessageDiv.textContent;
-            modal.classList.remove('hidden');
+        let potentialSlots = [];
+        if (weekday >= 1 && weekday <= 4) { 
+            potentialSlots = ['16:00', '16:30']; 
+        } else if (weekday === 5) { 
+            potentialSlots = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30']; 
         }
+        
+        const prioritySlots = {
+            '3': ['16:00'],          // Wednesday 4 PM
+            '5': ['15:00', '16:30']  // Friday 3 PM & 4:30 PM
+        };
 
-  
-        closeModalBtn.addEventListener('click', function() {
-            modal.classList.add('hidden');
+        timeSelect.innerHTML = '';
+        if (potentialSlots.length === 0) {
+            timeSelect.innerHTML = '<option value="">No slots on weekends</option>';
+            timeSelect.disabled = true;
+            return;
+        }
+        
+        let hasAvailableSlots = false;
+        const now = new Date();
+        potentialSlots.forEach(slot => {
+            const [hours, minutes] = slot.split(':');
+            const slotDateTime = new Date(selectedDateStr + `T${hours}:${minutes}:00Z`);
+            
+            if (slotDateTime < now) return;
+            
+            const option = document.createElement('option');
+            option.value = slot;
+
+            const isPrioritySlot = (prioritySlots[weekday] || []).includes(slot);
+
+            if (bookedSlots.includes(slotDateTime.toISOString())) {
+                option.textContent = `${slot} - Booked`;
+                option.disabled = true;
+            } else if (isPrioritySlot && !isNewUser) {
+                option.textContent = `${slot} - Reserved for New Users`;
+                option.disabled = true;
+            } else {
+                option.textContent = slot + (isPrioritySlot ? ' (Priority Slot)' : '');
+                hasAvailableSlots = true;
+            }
+            timeSelect.appendChild(option);
         });
-    });
+        
+        timeSelect.disabled = false;
+        submitButton.disabled = !hasAvailableSlots;
+    }
+    dateInput.addEventListener('change', updateAvailableSlots);
+    if(dateInput.value) { updateAvailableSlots(); }
+});
 </script>
 {% endblock %}

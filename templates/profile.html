@@ -3,200 +3,124 @@
 
 {% block head_styles %}
 <style>
-    .profile-gradient {
-        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-    }
-    .profile-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid rgba(148, 163, 184, 0.1);
-    }
-    .booking-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        transition: all 0.3s ease;
-        border: 1px solid rgba(148, 163, 184, 0.1);
-    }
-    .booking-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        border-color: rgba(20, 184, 166, 0.2);
-    }
-    .empty-state {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    }
-    .avatar-ring {
-        background: linear-gradient(135deg, #14b8a6, #0d9488);
-        padding: 4px;
-        border-radius: 50%;
-    }
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .animate-fade-in-up {
-        animation: fadeInUp 0.6s ease-out;
-    }
-    .animate-fade-in-delayed {
-        animation: fadeInUp 0.8s ease-out 0.2s both;
-    }
+    .booking-card { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); transition: all 0.3s ease; border: 1px solid rgba(148, 163, 184, 0.1); }
+    .booking-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    .booking-card.cancelled { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); opacity: 0.7; }
+    .booking-card.cancelled h3 { text-decoration: line-through; color: #64748b; }
+    .modal-backdrop { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-    <!-- Profile Header -->
-    <div class="profile-card p-8 md:p-10 rounded-3xl shadow-xl mb-12 animate-fade-in-up">
-        <div class="flex flex-col lg:flex-row items-center lg:items-start space-y-6 lg:space-y-0 lg:space-x-8">
-            <div class="relative">
-                <div class="avatar-ring rounded-full">
-                    <img src="{{ user.profile_picture or 'https://ui-avatars.com/api/?name=' + user.username|urlencode + '&background=ffffff&color=0d9488&size=128&bold=true' }}" 
-                         alt="Profile Picture" 
-                         class="w-32 h-32 rounded-full object-cover bg-white">
-                </div>
-                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full border-4 border-white flex items-center justify-center shadow-lg">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-            </div>
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+    <!-- Profile Section -->
+    <div class="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl mb-8 sm:mb-12">
+        <div class="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-6 lg:space-x-8 text-center sm:text-left">
+            <img src="{{ user.profile_picture or 'https://ui-avatars.com/api/?name=' + user.username|urlencode + '&background=0d9488&color=ffffff&size=128&bold=true' }}" 
+                 alt="Profile Picture" class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-lg">
             
-            <div class="flex-1 text-center lg:text-left">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3 break-words">
-                    Welcome, {{ user.username.split('@')[0].title() }}! 
+            <div class="flex-1">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+                    Welcome, {{ user.username.split('@')[0].title() }}! 👋
                 </h1>
-                <p class="text-gray-600 text-lg mb-4">{{ user.username }}</p>
-                <p class="text-gray-600 leading-relaxed max-w-2xl">
-                    Your sports booking journey starts here. Track your bookings, explore new games, and stay active with our premium facilities.
-                </p>
-                <div class="flex flex-wrap gap-3 mt-6 justify-center lg:justify-start">
-                    <span class="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-800 rounded-full text-sm font-medium">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                        </svg>
-                        Student
-                    </span>
-                    <span class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Verified
-                    </span>
-                </div>
+                <p class="text-gray-600 text-sm sm:text-base md:text-lg break-all">{{ user.username }}</p>
             </div>
-            
-            <div class="lg:text-right">
-                <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-2xl shadow-lg mb-4">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    <span class="font-semibold">{{ bookings|length }} Total Bookings</span>
-                </div>
+
+            <div class="text-base sm:text-lg font-semibold bg-primary-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-2xl shadow-lg">
+                {{ stats.user_bookings }} Confirmed
             </div>
         </div>
     </div>
 
     <!-- Bookings Section -->
-    <div class="animate-fade-in-delayed">
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">My Bookings</h2>
-                <p class="text-gray-600">Keep track of all your sports sessions</p>
-            </div>
-            <div class="mt-4 lg:mt-0 flex flex-col sm:flex-row gap-3">
-                <a href="{{ url_for('home') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    Book New Session
-                </a>
-            </div>
+    <div>
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-3">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">My Bookings</h2>
+            <a href="{{ url_for('home') }}" class="w-full sm:w-auto text-center bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-2xl shadow-lg">
+                Book New Session
+            </a>
         </div>
         
         {% if bookings %}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {% for booking in bookings %}
-                <div class="booking-card p-6 rounded-2xl shadow-lg group">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-xl text-gray-900 group-hover:text-primary-600 transition-colors duration-300">{{ booking.game.name }}</h3>
-                                <p class="text-sm text-gray-500">Sports Session</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                Confirmed
-                            </span>
-                        </div>
+                <div class="booking-card p-4 sm:p-6 rounded-2xl shadow-lg group {% if booking.status == 'Cancelled' %}cancelled{% endif %}">
+                    <div class="flex flex-col sm:flex-row justify-between mb-3 sm:mb-4 gap-2">
+                        <h3 class="font-bold text-lg sm:text-xl text-gray-900">{{ booking.game.name }}</h3>
+                        {% if booking.status == 'Confirmed' %}
+                            <span class="px-2 py-1 sm:px-3 sm:py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Confirmed</span>
+                        {% elif booking.status == 'Cancelled' %}
+                            <span class="px-2 py-1 sm:px-3 sm:py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Cancelled</span>
+                        {% endif %}
                     </div>
                     
-                    <div class="space-y-3 mb-4">
-                        <div class="flex items-center text-gray-600">
-                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <!-- CORRECTED: This ensures time is converted to IST before displaying the date -->
-                            <span class="font-medium">{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d, %Y') }}</span>
-                        </div>
-                        <div class="flex items-center text-gray-600">
-                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <!-- CORRECTED: This ensures time is converted to IST before displaying the time -->
-                            <span class="font-medium">{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%I:%M %p') }}</span>
-                        </div>
+                    <div class="space-y-2 sm:space-y-3 mb-3 sm:mb-4 text-gray-600 text-sm sm:text-base">
+                        <p><strong>Date:</strong> {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d, %Y') }}</p>
+                        <p><strong>Time:</strong> {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%I:%M %p') }}</p>
                     </div>
                     
-                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div class="text-xs text-gray-500">
-                            <!-- This displays the creation date, which is fine in UTC -->
-                            Booked on {{ booking.created_at.strftime('%b %d, %Y') }}
-                        </div>
-                        <div class="flex items-center text-primary-600 text-sm font-medium">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            All set!
-                        </div>
+                    <div class="flex flex-col sm:flex-row justify-between pt-3 sm:pt-4 border-t gap-2">
+                        <p class="text-xs text-gray-500">Booked on {{ booking.created_at.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%b %d, %Y') }}</p>
+                        {% if booking.status == 'Confirmed' and booking.booking_time > now_utc %}
+                            <button type="button" onclick="openCancelModal({{ booking.id }}, '{{ booking.game.name }}', '{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d at %I:%M %p') }}')" class="bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold py-1 px-3 rounded-lg self-end sm:self-auto">
+                                Cancel
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="empty-state text-center p-16 rounded-3xl shadow-lg border border-blue-200">
-                <div class="max-w-md mx-auto">
-                    <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Ready to Get Active?</h3>
-                    <p class="text-gray-600 text-lg mb-8 leading-relaxed">
-                        You haven't booked any sessions yet. Explore our amazing sports facilities and book your first game!
-                    </p>
-                    <a href="{{ url_for('home') }}" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        Book Your First Game
-                    </a>
-                </div>
+            <div class="text-center p-8 sm:p-12 md:p-16 rounded-3xl shadow-lg border">
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Ready to Get Active?</h3>
+                <p class="text-gray-600 text-base sm:text-lg mb-6 sm:mb-8">You haven't booked any sessions yet.</p>
+                <a href="{{ url_for('home') }}" class="block sm:inline-block px-6 sm:px-8 py-3 sm:py-4 bg-primary-600 text-white font-bold text-base sm:text-lg rounded-2xl shadow-xl">
+                    Book Your First Game
+                </a>
             </div>
         {% endif %}
     </div>
 </main>
-{% endblock %}
 
+<!-- Cancel Modal -->
+<div id="cancel-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
+        <div class="text-center">
+            <h3 class="text-xl sm:text-2xl font-bold text-gray-900">Cancel Booking?</h3>
+            <p class="text-gray-600 mt-3 sm:mt-4 text-sm sm:text-base">
+                Are you sure you want to cancel for <strong id="modal-game-name"></strong> on <strong id="modal-booking-time"></strong>?
+            </p>
+        </div>
+        <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <button onclick="closeCancelModal()" type="button" class="w-full rounded-xl border px-4 py-3 bg-white font-medium text-gray-700 hover:bg-gray-50">
+                Go Back
+            </button>
+            <form id="cancel-form" method="POST" action="">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="w-full rounded-xl border border-transparent px-4 py-3 bg-red-600 font-medium text-white hover:bg-red-700">
+                    Yes, Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cancelModal = document.getElementById('cancel-modal');
+    const cancelForm = document.getElementById('cancel-form');
+    const modalGameName = document.getElementById('modal-game-name');
+    const modalBookingTime = document.getElementById('modal-booking-time');
+
+    function openCancelModal(bookingId, gameName, bookingTime) {
+        cancelForm.action = `/cancel_booking/${bookingId}`;
+        modalGameName.textContent = gameName;
+        modalBookingTime.textContent = bookingTime;
+        cancelModal.classList.remove('hidden');
+    }
+
+    function closeCancelModal() {
+        cancelModal.classList.add('hidden');
+    }
+    cancelModal.addEventListener('click', (e) => e.target === cancelModal && closeCancelModal());
+</script>
+{% endblock %}

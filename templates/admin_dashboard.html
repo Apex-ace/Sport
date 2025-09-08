@@ -3,99 +3,30 @@
 
 {% block head_styles %}
 <style>
-    .admin-gradient {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-    }
-    .glass-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .stats-card {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        transition: all 0.3s ease;
-    }
-    .stats-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    }
-    .table-row:hover {
-        background: linear-gradient(90deg, rgba(20, 184, 166, 0.05), rgba(20, 184, 166, 0.02));
-        transform: scale(1.01);
-    }
-    .download-btn {
-        background: linear-gradient(135deg, #059669, #047857);
-        transition: all 0.3s ease;
-    }
-    .download-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
-    }
-    .logout-btn {
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
-        transition: all 0.3s ease;
-    }
-    .logout-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
-    }
-    .floating-shapes {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: 0;
-        pointer-events: none;
-    }
-    .shape {
-        position: absolute;
-        border-radius: 50%;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
-        animation: float 12s ease-in-out infinite;
-    }
-    .shape:nth-child(1) { width: 120px; height: 120px; top: 10%; left: 15%; animation-delay: 0s; }
-    .shape:nth-child(2) { width: 80px; height: 80px; top: 70%; right: 20%; animation-delay: -4s; }
-    .shape:nth-child(3) { width: 100px; height: 100px; bottom: 20%; left: 25%; animation-delay: -8s; }
-    @keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        33% { transform: translateY(-30px) rotate(5deg); }
-        66% { transform: translateY(15px) rotate(-5deg); }
-    }
+    .admin-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); }
+    .stats-card { background: linear-gradient(135deg, #ffffff, #f8fafc); transition: all 0.3s ease; }
+    .stats-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); }
+    .modal-backdrop { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="admin-gradient min-h-screen relative">
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-    </div>
-    
     <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header Section -->
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
             <div class="mb-6 lg:mb-0">
                 <h1 class="text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-                <p class="text-gray-300">Manage users, bookings, and generate reports</p>
+                <p class="text-gray-300">Oversee all user activity and manage bookings.</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-4">
-                <a href="{{ url_for('download_report') }}" class="download-btn inline-flex items-center justify-center px-6 py-3 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
+                <a href="{{ url_for('download_report') }}" class="inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105">
                     Download Report
                 </a>
-                <form action="{{ url_for('admin_logout') }}" method="POST" class="inline-block">
+                <form action="{{ url_for('admin_logout') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="logout-btn w-full inline-flex items-center justify-center px-6 py-3 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
+                    <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105">
                         Logout
                     </button>
                 </form>
@@ -103,177 +34,190 @@
         </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="stats-card p-6 rounded-3xl shadow-xl">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-medium mb-1">Total Users</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ users|length }}</p>
-                    </div>
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                        </svg>
-                    </div>
-                </div>
+                <p class="text-gray-600 text-sm font-medium mb-1">Total Users</p>
+                <p class="text-3xl font-bold text-gray-900">{{ users|length }}</p>
             </div>
-            
             <div class="stats-card p-6 rounded-3xl shadow-xl">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-medium mb-1">Total Bookings</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ bookings|length }}</p>
-                    </div>
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                </div>
+                <p class="text-gray-600 text-sm font-medium mb-1">Confirmed Bookings</p>
+                <p class="text-3xl font-bold text-gray-900">{{ bookings|selectattr('0.status', 'equalto', 'Confirmed')|list|length }}</p>
             </div>
-            
             <div class="stats-card p-6 rounded-3xl shadow-xl">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-medium mb-1">System Status</p>
-                        <p class="text-lg font-semibold text-green-600">Online</p>
-                    </div>
-                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                </div>
+                <p class="text-gray-600 text-sm font-medium mb-1">Cancelled Bookings</p>
+                <p class="text-3xl font-bold text-gray-900">{{ bookings|selectattr('0.status', 'equalto', 'Cancelled')|list|length }}</p>
+            </div>
+             <div class="stats-card p-6 rounded-3xl shadow-xl">
+                <p class="text-gray-600 text-sm font-medium mb-1">System Status</p>
+                <p class="text-lg font-semibold text-green-600">Online</p>
             </div>
         </div>
 
         <!-- Users Table -->
-        <div class="glass-card p-8 rounded-3xl shadow-2xl mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Registered Users</h2>
-                <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-xl text-sm font-semibold">
-                    {{ users|length }} Total
-                </div>
-            </div>
-            <div class="overflow-x-auto">
+        <div class="glass-card p-6 md:p-8 rounded-3xl shadow-2xl mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Registered Users</h2>
+            
+            <!-- Desktop Table -->
+            <div class="overflow-x-auto hidden md:block">
                 <table class="w-full">
                     <thead>
-                        <tr class="border-b-2 border-gray-200">
-                            <th class="text-left py-4 px-6 font-semibold text-gray-900">User</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-900">Email</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-900">Status</th>
+                        <tr class="border-b-2 border-gray-100">
+                            <th class="text-left py-4 px-6 font-semibold text-sm uppercase">Username (Email)</th>
+                            <th class="text-left py-4 px-6 font-semibold text-sm uppercase">Role</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-100">
                         {% for user in users %}
-                        <tr class="table-row border-b border-gray-100 transition-all duration-300">
-                            <td class="py-4 px-6">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3">
-                                        <span class="text-white font-semibold text-sm">{{ user.username[0].upper() }}</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-gray-900">{{ user.username }}</p>
-                                        <p class="text-sm text-gray-500">User ID: #{{ user.id }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-6">
-                                <p class="text-gray-900">{{ user.email }}</p>
-                            </td>
-                            <td class="py-4 px-6">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    <div class="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
-                                    Active
-                                </span>
-                            </td>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6 font-medium text-gray-900">{{ user.username }}</td>
+                            <td class="py-4 px-6 text-gray-700">{{ user.role }}</td>
                         </tr>
                         {% else %}
-                        <tr>
-                            <td colspan="3" class="py-12 text-center text-gray-500">
-                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                                </svg>
-                                No users found
-                            </td>
-                        </tr>
+                        <tr><td colspan="2" class="py-12 text-center text-gray-500">No users have registered yet.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Card List -->
+            <div class="md:hidden space-y-4">
+                {% for user in users %}
+                <div class="bg-gray-50 p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-gray-800">{{ user.username }}</span>
+                        <span class="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{{ user.role }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="py-8 text-center text-gray-500">No users have registered yet.</p>
+                {% endfor %}
             </div>
         </div>
 
         <!-- Bookings Table -->
-        <div class="glass-card p-8 rounded-3xl shadow-2xl">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Recent Bookings</h2>
-                <div class="bg-green-100 text-green-800 px-4 py-2 rounded-xl text-sm font-semibold">
-                    {{ bookings|length }} Total
-                </div>
-            </div>
-            <div class="overflow-x-auto">
+        <div class="glass-card p-6 md:p-8 rounded-3xl shadow-2xl">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">All Bookings</h2>
+            
+            <!-- Desktop Table -->
+            <div class="overflow-x-auto hidden md:block">
                 <table class="w-full">
                     <thead>
-                        <tr class="border-b-2 border-gray-200">
-                            <th class="text-left py-4 px-6 font-semibold text-gray-900">User</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-900">Game</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-900">Date & Time</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-900">Status</th>
+                        <tr class="border-b-2 border-gray-100">
+                            <th class="text-left py-4 px-6 font-semibold text-sm uppercase">User</th>
+                            <th class="text-left py-4 px-6 font-semibold text-sm uppercase">Game</th>
+                            <th class="text-left py-4 px-6 font-semibold text-sm uppercase">Booking Time</th>
+                            <th class="text-left py-4 px-6 font-semibold text-sm uppercase">Status</th>
+                           
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-100">
                         {% for booking, user, game in bookings %}
-                        <tr class="table-row border-b border-gray-100 transition-all duration-300">
-                            <td class="py-4 px-6">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
-                                        <span class="text-white font-semibold text-sm">{{ user.username[0].upper() }}</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-gray-900">{{ user.username }}</p>
-                                        <p class="text-sm text-gray-500">{{ user.email }}</p>
-                                    </div>
-                                </div>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6 font-medium text-gray-900">{{ user.username }}</td>
+                            <td class="py-4 px-6 text-gray-700">{{ game.name }}</td>
+                            <td class="py-4 px-6 text-gray-700">
+                                {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%b %d, %Y - %I:%M %p') }}
                             </td>
                             <td class="py-4 px-6">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                        </svg>
-                                    </div>
-                                    <p class="font-medium text-gray-900">{{ game.name }}</p>
-                                </div>
+                                {% if booking.status == 'Confirmed' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Confirmed</span>
+                                {% elif booking.status == 'Cancelled' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Cancelled</span>
+                                {% endif %}
                             </td>
                             <td class="py-4 px-6">
-                                <div class="text-gray-900 font-medium">
-                                    {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%B %d, %Y') }}
-                                </div>
-                                <div class="text-gray-500 text-sm">
-                                    {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%I:%M %p') }}
-                                </div>
-                            </td>
-                            <td class="py-4 px-6">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                    <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2"></div>
-                                    Confirmed
-                                </span>
+                                {% if booking.status == 'Confirmed' and booking.booking_time > now_utc %}
+                                <button type="button" onclick="openCancelModal({{ booking.id }}, '{{ user.username }}\'s booking for {{ game.name }}')" class="text-red-600 hover:text-red-800 font-semibold text-sm">
+                                    Cancel
+                                </button>
+                                {% endif %}
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="4" class="py-12 text-center text-gray-500">
-                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                No bookings found
-                            </td>
+                            <td colspan="5" class="py-12 text-center text-gray-500">No bookings have been made yet.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Card List -->
+            <div class="md:hidden space-y-4">
+                {% for booking, user, game in bookings %}
+                <div class="bg-gray-50 p-4 rounded-lg shadow space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500">User</p>
+                            <p class="font-medium text-gray-900">{{ user.username }}</p>
+                        </div>
+                        {% if booking.status == 'Confirmed' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Confirmed</span>
+                        {% elif booking.status == 'Cancelled' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Cancelled</span>
+                        {% endif %}
+                    </div>
+                     <div>
+                        <p class="text-sm text-gray-500">Game</p>
+                        <p class="font-medium text-gray-900">{{ game.name }}</p>
+                    </div>
+                     <div>
+                        <p class="text-sm text-gray-500">Time</p>
+                        <p class="font-medium text-gray-900">{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%b %d, %Y - %I:%M %p') }}</p>
+                    </div>
+                    {% if booking.status == 'Confirmed' and booking.booking_time > now_utc %}
+                    <div class="pt-2 border-t border-gray-200">
+                        
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                 <p class="py-8 text-center text-gray-500">No bookings have been made yet.</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Cancellation Modal -->
+<div id="cancel-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+        <div class="text-center">
+            <h3 class="text-2xl font-bold text-gray-900">Cancel Booking?</h3>
+            <p class="text-gray-600 mt-4">
+                Are you sure you want to cancel <strong id="modal-booking-info" class="text-gray-800"></strong>? This action cannot be undone.
+            </p>
+        </div>
+        <div class="mt-8 grid grid-cols-2 gap-4">
+            <button onclick="closeCancelModal()" type="button" class="w-full justify-center rounded-xl border px-4 py-3 bg-white font-medium text-gray-700 hover:bg-gray-50">Go Back</button>
+            <!-- <form id="cancel-form" method="POST" action="">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="w-full justify-center rounded-xl border border-transparent px-4 py-3 bg-red-600 font-medium text-white hover:bg-red-700">Yes, Cancel Booking</button>
+            </form> -->
+        </div>
+    </div>
+</div>
+
+<script>
+    const cancelModal = document.getElementById('cancel-modal');
+    const cancelForm = document.getElementById('cancel-form');
+    const modalBookingInfo = document.getElementById('modal-booking-info');
+
+    function openCancelModal(bookingId, bookingInfo) {
+        cancelForm.action = `/cancel_booking/${bookingId}`;
+        modalBookingInfo.textContent = bookingInfo;
+        cancelModal.classList.remove('hidden');
+    }
+
+    function closeCancelModal() {
+        cancelModal.classList.add('hidden');
+    }
+
+    cancelModal.addEventListener('click', (e) => {
+        if (e.target === cancelModal) {
+            closeCancelModal();
+        }
+    });
+</script>
 {% endblock %}
+

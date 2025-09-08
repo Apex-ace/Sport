@@ -32,14 +32,12 @@ def check_and_seed():
             if games_count == 0:
                 print("Adding games...")
                 games_data = [
-                    {"name": "Basketball", "max_players": 10, "duration_minutes": 60},
-                    {"name": "Football", "max_players": 22, "duration_minutes": 90},
-                    {"name": "Tennis", "max_players": 4, "duration_minutes": 90},
-                    {"name": "Badminton", "max_players": 4, "duration_minutes": 60},
+                    {"name": "Basketball", "max_players": 14, "duration_minutes": 30},
                     {"name": "Table Tennis", "max_players": 4, "duration_minutes": 30},
+                    {"name": "Badminton", "max_players": 4, "duration_minutes": 30},
                     {"name": "Volleyball", "max_players": 12, "duration_minutes": 60},
                     {"name": "Cricket", "max_players": 22, "duration_minutes": 180},
-                    {"name": "Swimming", "max_players": 8, "duration_minutes": 45},
+                    {"name": "Pool", "max_players": 8, "duration_minutes": 45},
                 ]
                 
                 for game_data in games_data:
