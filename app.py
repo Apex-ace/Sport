@@ -65,6 +65,7 @@ class Game(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
     max_players = db.Column(db.Integer, nullable=False, default=1)
     duration_minutes = db.Column(db.Integer, nullable=False, default=30)
+    image_filename = db.Column(db.String, nullable=True) # <-- This is the required column for images
     bookings = relationship("Booking", back_populates="game")
 
 class Booking(db.Model):
@@ -85,8 +86,9 @@ def load_user(user_id):
     except (ValueError, TypeError):
         return None
 
-# --- Helper Functions ---
+# --- Helper Functions (No changes needed here) ---
 def send_otp_email(recipient_email, otp):
+    # (Your existing code for sending OTP emails)
     msg = EmailMessage()
     msg.set_content(f"Your One-Time Password (OTP) is: {otp}\nThis code will expire in 5 minutes.")
     msg['Subject'] = 'Your Sports Room Login OTP'
@@ -104,11 +106,11 @@ def send_otp_email(recipient_email, otp):
         return False
 
 def send_booking_confirmation_email(recipient_email, game_name, booking_dt):
+    # (Your existing code for sending booking confirmations)
     ist_tz = pytz.timezone('Asia/Kolkata')
     booking_dt_ist = booking_dt.astimezone(ist_tz)
     date_str = booking_dt_ist.strftime('%A, %B %d, %Y')
     time_str = booking_dt_ist.strftime('%I:%M %p')
-    
     msg = EmailMessage()
     msg.set_content(f"""Hi {recipient_email.split('@')[0]},
 
@@ -160,6 +162,8 @@ def home():
     }
     return render_template('home.html', games=games, stats=stats)
 
+# --- All other routes (book_game, auth, admin, etc.) remain unchanged ---
+# (Your existing code for all other routes)
 @app.route('/book/<int:game_id>', methods=['GET', 'POST'])
 @login_required
 def book_game(game_id):
@@ -235,30 +239,23 @@ def book_game(game_id):
     
     return render_template('book_game.html', game=game, booked_slots_json=json.dumps(booked_slots), is_new_user=json.dumps(is_new_user_check), today=date.today().isoformat())
 
-# --- Cancellation Route ---
 @app.route('/cancel_booking/<int:booking_id>', methods=['POST'])
 @login_required
 def cancel_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
-    
     is_owner = booking.user_id == current_user.id
     is_admin = session.get('admin_logged_in', False)
-
     if not is_owner and not is_admin:
         flash('You are not authorized to cancel this booking.', 'danger')
         return redirect(url_for('profile'))
-    
     if booking.booking_time < datetime.now(timezone.utc) and booking.status == 'Confirmed':
         flash('Cannot cancel a booking that is in the past.', 'danger')
         return redirect(request.referrer or url_for('profile'))
-        
     booking.status = 'Cancelled'
     db.session.commit()
     flash(f'The booking for {booking.game.name} has been cancelled.', 'success')
-    
     return redirect(request.referrer or url_for('profile'))
 
-# --- Auth Routes ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated: return redirect(url_for('home'))
@@ -269,19 +266,16 @@ def login():
             user = User(username=username, role='student', id=uuid.uuid4())
             db.session.add(user)
             flash('Welcome! Creating your account.', 'success')
-        
         otp = secrets.token_hex(3).upper()
         user.otp_hash = generate_password_hash(otp)
         user.otp_expiry = datetime.now(timezone.utc) + timedelta(minutes=5)
         db.session.commit()
-        
         if send_otp_email(user.username, otp):
             session['username_for_verification'] = user.username
             flash('An OTP has been sent to your email.', 'info')
             return redirect(url_for('verify_otp'))
         else:
             flash('Failed to send OTP email. Please try again.', 'danger')
-            
     return render_template('login.html')
 
 @app.route('/verify_otp', methods=['GET', 'POST'])
@@ -300,10 +294,8 @@ def verify_otp():
             return redirect(url_for('home'))
         else:
             flash('Invalid or expired OTP.', 'danger')
-            
     return render_template('verify_otp.html', email=username)
 
-# --- Logout Routes ---
 @app.route('/logout/confirm')
 @login_required
 def logout_confirm():
@@ -316,7 +308,6 @@ def logout():
     flash('You have been successfully logged out.', 'info')
     return redirect(url_for('landing'))
 
-# --- Profile Route ---
 @app.route('/profile')
 @login_required
 def profile():
@@ -325,16 +316,14 @@ def profile():
         'user_bookings': Booking.query.filter_by(user_id=current_user.id, status='Confirmed').count()
     }
     return render_template('profile.html', 
-                         bookings=bookings, 
-                         stats=stats, 
-                         user=current_user)
+                          bookings=bookings, 
+                          stats=stats, 
+                          user=current_user)
 
-# --- Admin Routes ---
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if session.get('admin_logged_in'):
         return redirect(url_for('admin_dashboard'))
-    
     if request.method == 'POST':
         password = request.form.get('password')
         if password == app.config['ADMIN_PASSWORD']:
@@ -355,8 +344,8 @@ def admin_dashboard():
         .order_by(Booking.booking_time.desc())\
         .all()
     return render_template('admin_dashboard.html', 
-                         users=users, 
-                         bookings=bookings)
+                          users=users, 
+                          bookings=bookings)
 
 @app.route('/admin/logout', methods=['POST'])
 def admin_logout():
@@ -368,22 +357,17 @@ def admin_logout():
 def download_report():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
-
     p.drawString(inch, height - inch, "Sports Room Booking Report")
     p.drawString(inch, height - inch - 20, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
     y = height - inch * 2
-    
     bookings = db.session.query(Booking, User, Game)\
         .join(User, Booking.user_id == User.id)\
         .join(Game, Booking.game_id == Game.id)\
         .order_by(Booking.booking_time.desc())\
         .all()
-    
     ist_tz = pytz.timezone('Asia/Kolkata')
     for booking, user, game in bookings:
         booking_dt_ist = booking.booking_time.astimezone(ist_tz)
@@ -394,15 +378,14 @@ def download_report():
         if y < inch:
             p.showPage()
             y = height - inch
-            
     p.save()
     buffer.seek(0)
-    
     return Response(
         buffer,
         mimetype='application/pdf',
         headers={'Content-Disposition': 'attachment;filename=admin_report.pdf'}
     )
+
 
 if __name__ == '__main__':
     with app.app_context():
