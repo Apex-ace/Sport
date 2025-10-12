@@ -251,16 +251,16 @@ def cancel_booking(booking_id):
     if booking.booking_time < datetime.now(timezone.utc) and booking.status == 'Confirmed':
         flash('Cannot cancel a booking that is in the past.', 'danger')
         return redirect(request.referrer or url_for('profile'))
-    booking.status = 'Cancelled'
-    db.session.commit()
-    flash(f'The booking for {booking.game.name} has been cancelled.', 'success')
-    return redirect(request.referrer or url_for('profile'))
-
+# --- Auth Routes ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated: return redirect(url_for('home'))
     if request.method == 'POST':
         username = request.form.get('username').lower().strip()
+        if not username:
+            flash('Please enter your email address.', 'danger')
+            return redirect(url_for('login'))
+        
         user = User.query.filter_by(username=username).first()
         if not user:
             user = User(username=username, role='student', id=uuid.uuid4())
@@ -390,4 +390,5 @@ def download_report():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
+
