@@ -245,12 +245,33 @@ def cancel_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     is_owner = booking.user_id == current_user.id
     is_admin = session.get('admin_logged_in', False)
+
+    # Authorization check
     if not is_owner and not is_admin:
         flash('You are not authorized to cancel this booking.', 'danger')
         return redirect(url_for('profile'))
+
+    # Check if booking is in the past and confirmed (cannot cancel past confirmed bookings)
     if booking.booking_time < datetime.now(timezone.utc) and booking.status == 'Confirmed':
         flash('Cannot cancel a booking that is in the past.', 'danger')
         return redirect(request.referrer or url_for('profile'))
+
+    # Check if booking is already cancelled or completed
+    if booking.status in ['Cancelled', 'Completed']:
+        flash(f'Booking (ID: {booking_id}) is already {booking.status}. No action taken.', 'info')
+        return redirect(request.referrer or url_for('profile'))
+
+    # If all checks pass, proceed with cancellation
+    try:
+        booking.status = 'Cancelled'
+        db.session.commit()
+        flash(f'Booking for {booking.game.name} on {booking.booking_time.strftime("%Y-%m-%d %H:%M")} has been cancelled.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'An error occurred while cancelling the booking: {e}', 'danger')
+    
+    # Always return a redirect after processing
+    return redirect(request.referrer or url_for('profile')) # Redirect to the page they came from, or profile as a fallback
 # --- Auth Routes ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
