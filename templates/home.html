@@ -1,204 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard :: JIT Sports Booking</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'sans': ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a'
-                        }
-                    },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        main::-webkit-scrollbar { width: 6px; }
-        main::-webkit-scrollbar-track { background: #f1f5f9; }
-        main::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        
-        .nav-gradient {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-        }
-        .nav-brand {
-            background: linear-gradient(135deg, #0d9488, #14b8a6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .stats-gradient-1 { background: linear-gradient(135deg, #14b8a6, #0d9488); }
-        .stats-gradient-2 { background: linear-gradient(135deg, #10b981, #059669); }
-        .stats-gradient-3 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .game-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            transition: all 0.3s ease;
-        }
-        .game-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-        }
+{% extends "base.html" %}
+{% block title %}Dashboard :: JIT Sports Booking{% endblock %}
 
-        .animation-delay-100 { animation-delay: 100ms; }
-        .animation-delay-200 { animation-delay: 200ms; }
-        .animation-delay-300 { animation-delay: 300ms; }
-        .animation-delay-400 { animation-delay: 400ms; }
-        .animation-delay-500 { animation-delay: 500ms; }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-gray-50 via-white to-primary-50 text-gray-800 font-sans">
-    <div class="min-h-screen flex flex-col">
-        <!-- =============================================================== -->
-        <!-- DESKTOP & TABLET NAVIGATION (Visible on md screens and up)      -->
-        <!-- =============================================================== -->
-        <nav class="hidden md:flex items-center justify-between p-4 sticky top-0 z-50 nav-gradient shadow-md">
-            <div class="flex items-center space-x-3 group">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white shadow-sm">
-                    <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain p-1">
-                </div>
-                <span class="text-xl font-bold nav-brand tracking-tight">JIT Sports Booking</span>
+{% block head_styles %}
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    main::-webkit-scrollbar { width: 6px; }
+    main::-webkit-scrollbar-track { background: #f1f5f9; }
+    main::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+    .stats-gradient-1 { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .stats-gradient-2 { background: linear-gradient(135deg, #10b981, #059669); }
+    .stats-gradient-3 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    
+    .game-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        transition: all 0.3s ease;
+    }
+    .game-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    .animate-fade-in-up {
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    .animation-delay-100 { animation-delay: 100ms; }
+    .animation-delay-200 { animation-delay: 200ms; }
+    .animation-delay-300 { animation-delay: 300ms; }
+    .animation-delay-400 { animation-delay: 400ms; }
+    .animation-delay-500 { animation-delay: 500ms; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-8 animate-fade-in-up">
+    <h1 class="text-2xl md:text-3xl text-gray-600">Welcome back,</h1>
+    <p class="text-4xl md:text-5xl font-bold text-gray-900">{{ current_user.username.split('@')[0] | title }}!</p>
+</div>
+
+<section class="mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <a href="#available-games" class="block">
+            <div class="stats-gradient-1 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up animation-delay-200 transition-transform duration-300 hover:scale-105">
+                <p class="text-sm font-medium text-white/80 mb-1">Total Games</p>
+                <p class="text-4xl font-bold">{{ stats.total_games }}</p>
             </div>
-            <div class="flex items-center space-x-2">
-                 <a href="{{ url_for('home') }}" class="px-4 py-2 text-sm font-semibold bg-primary-600 hover:bg-primary-700 rounded-lg text-white transition-colors">Dashboard</a>
-                 <a href="{{ url_for('profile') }}" class="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-primary-50 rounded-lg transition-colors">Profile</a>
-                 <form action="{{ url_for('logout') }}" method="POST" class="inline">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors">Logout</button>
-                </form>
+        </a>
+        <a href="{{ url_for('profile') }}" class="block">
+            <div class="stats-gradient-2 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up animation-delay-300 transition-transform duration-300 hover:scale-105">
+                <p class="text-sm font-medium text-white/80 mb-1">Your Bookings</p>
+                <p class="text-4xl font-bold">{{ stats.user_bookings }}</p>
             </div>
-        </nav>
-
-        <!-- =============================================================== -->
-        <!-- MAIN CONTENT (For both Mobile and Desktop)                      -->
-        <!-- =============================================================== -->
-        <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Dynamic Welcome Message -->
-            <div class="mb-8 animate-fade-in-up opacity-0">
-                <h1 class="text-2xl md:text-3xl text-gray-600">Welcome back,</h1>
-                <p class="text-4xl md:text-5xl font-bold text-gray-900">{{ current_user.username.split('@')[0] | title }}!</p>
+        </a>
+        <a href="{{ url_for('profile') }}" class="block">
+            <div class="stats-gradient-3 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up animation-delay-400 transition-transform duration-300 hover:scale-105">
+                <p class="text-sm font-medium text-white/80 mb-1">Today's Games</p>
+                <p class="text-4xl font-bold">{{ stats.today_bookings }}</p>
             </div>
-
-            <!-- Flashed Messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="mb-6">
-                    {% for category, message in messages %}
-                        <div class="p-3 rounded-lg text-sm font-medium flex items-center space-x-3 {{ 'bg-gradient-to-r from-green-50 to-green-100 border border-green-200 text-green-800' if category == 'success' else 'bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-800' }}" role="alert">
-                            {% if category == 'success' %}
-                                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                            {% else %}
-                                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                            {% endif %}
-                            <span>{{ message }}</span>
-                        </div>
-                    {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-
-            <!-- Statistics Section -->
-            <section class="mb-10">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <a href="#available-games" class="block">
-                        <div class="stats-gradient-1 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up opacity-0 animation-delay-200 transition-transform duration-300 hover:scale-105">
-                            <p class="text-sm font-medium text-white/80 mb-1">Total Games</p>
-                            <p class="text-4xl font-bold">{{ stats.total_games }}</p>
-                        </div>
-                    </a>
-                    <a href="{{ url_for('profile') }}" class="block">
-                        <div class="stats-gradient-2 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up opacity-0 animation-delay-300 transition-transform duration-300 hover:scale-105">
-                            <p class="text-sm font-medium text-white/80 mb-1">Your Bookings</p>
-                            <p class="text-4xl font-bold">{{ stats.user_bookings }}</p>
-                        </div>
-                    </a>
-                    <a href="{{ url_for('profile') }}" class="block">
-                        <div class="stats-gradient-3 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up opacity-0 animation-delay-400 transition-transform duration-300 hover:scale-105">
-                            <p class="text-sm font-medium text-white/80 mb-1">Today's Games</p>
-                            <p class="text-4xl font-bold">{{ stats.today_bookings }}</p>
-                        </div>
-                    </a>
-                </div>
-            </section>
-
-            <!-- Available Games Section -->
-            <section class="pb-24 md:pb-0">
-                <h2 id="available-games" class="text-2xl font-semibold text-gray-900 mb-6 animate-fade-in-up opacity-0 animation-delay-500">Available Games</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {% for game in games %}
-                    <div class="game-card border border-gray-100 rounded-2xl shadow-md overflow-hidden group animate-fade-in-up opacity-0" style="animation-delay: {{ 500 + loop.index * 50 }}ms;">
-                        <div class="relative">
-                            <img src="{{ url_for('static', filename='img/' + game.image_filename) if game.image_filename else 'https://placehold.co/400x200/e2e8f0/94a3b8?text=No+Image' }}" 
-                                 alt="Image of {{ game.name }}" 
-                                 class="w-full h-32 object-cover">
-                        </div>
-                        <div class="p-4 flex flex-col flex-grow">
-                            <h3 class="font-bold text-lg text-gray-900 group-hover:text-primary-600 transition-colors">{{ game.name }}</h3>
-                            <div class="flex-grow mt-2">
-                                <div class="flex items-center text-gray-600 text-sm mb-2">
-                                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0117 18h-1.26a1 1 0 00-1.94-1.294A5.972 5.972 0 0012.93 17zM7.07 17c-.046-.327-.07-.66-.07-1a6.97 6.97 0 011.5-4.33A5 5 0 003 18h1.26a1 1 0 011.94-1.294A5.972 5.972 0 017.07 17z"/></svg>
-                                    <span>Max {{ game.max_players }} players</span>
-                                </div>
-                                <div class="flex items-center text-gray-600 text-sm">
-                                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                                    <span>{{ game.duration_minutes }} minutes</span>
-                                </div>
-                            </div>
-                            <a href="{{ url_for('book_game', game_id=game.id) }}" class="block w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg text-sm transition-colors text-center mt-4">Book Now</a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
-        </main>
-
-        <!-- =============================================================== -->
-        <!-- MOBILE-ONLY BOTTOM NAVIGATION (Hidden on md screens and up)     -->
-        <!-- =============================================================== -->
-        <nav class="md:hidden sticky bottom-0 bg-white/80 backdrop-blur-sm border-t border-gray-200 p-2 flex justify-around items-center z-10">
-            <a href="{{ url_for('home') }}" class="flex flex-col items-center text-primary-600 p-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-                <span class="text-xs mt-1">Home</span>
-            </a>
-            <a href="{{ url_for('profile') }}" class="flex flex-col items-center text-gray-500 hover:text-primary-600 transition-colors p-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
-                <span class="text-xs mt-1">My Bookings</span>
-            </a>
-            <!-- <a href="{{ url_for('profile') }}" class="flex flex-col items-center text-gray-500 hover:text-primary-600 transition-colors p-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-                <span class="text-xs mt-1">Profile</span>
-            </a> -->
-            <form action="{{ url_for('logout') }}" method="POST">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <button type="submit" class="flex flex-col items-center text-gray-500 hover:text-primary-600 transition-colors p-2">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    <span class="text-xs mt-1">Logout</span>
-                </button>
-            </form>
-        </nav>
+        </a>
     </div>
-</body>
-</html>
+</section>
 
+<section class="pb-24 md:pb-0">
+    <h2 id="available-games" class="text-2xl font-semibold text-gray-900 mb-6 animate-fade-in-up animation-delay-500">Available Games</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for game in games %}
+        <div class="game-card border border-gray-100 rounded-2xl shadow-md overflow-hidden group animate-fade-in-up" style="animation-delay: {{ 500 + loop.index * 50 }}ms;">
+            <div class="relative">
+                <img src="{{ url_for('static', filename='img/' + game.image_filename) if game.image_filename else 'https://placehold.co/400x200/e2e8f0/94a3b8?text=No+Image' }}" 
+                     alt="Image of {{ game.name }}" 
+                     class="w-full h-32 object-cover">
+            </div>
+            <div class="p-4 flex flex-col flex-grow">
+                <h3 class="font-bold text-lg text-gray-900 group-hover:text-primary-600 transition-colors">{{ game.name }}</h3>
+                <div class="flex-grow mt-2">
+                    <div class="flex items-center text-gray-600 text-sm mb-2">
+                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0117 18h-1.26a1 1 0 00-1.94-1.294A5.972 5.972 0 0012.93 17zM7.07 17c-.046-.327-.07-.66-.07-1a6.97 6.97 0 011.5-4.33A5 5 0 003 18h1.26a1 1 0 011.94-1.294A5.972 5.972 0 017.07 17z"/></svg>
+                        <span>Max {{ game.max_players }} players</span>
+                    </div>
+                    <div class="flex items-center text-gray-600 text-sm">
+                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                        <span>{{ game.duration_minutes }} minutes</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('book_game', game_id=game.id) }}" class="block w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg text-sm transition-colors text-center mt-4">Book Now</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<nav class="md:hidden fixed w-full bottom-0 bg-white/80 backdrop-blur-sm border-t border-gray-200 flex items-center z-40">
+    <a href="{{ url_for('home') }}" class="flex-1 flex flex-col items-center justify-center p-2 h-16 text-primary-600">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+        <span class="text-xs mt-1">Home</span>
+    </a>
+    <a href="{{ url_for('profile') }}" class="flex-1 flex flex-col items-center justify-center p-2 h-16 text-gray-500 hover:text-primary-600 transition-colors">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        <span class="text-xs mt-1">My Bookings</span>
+    </a>
+    <form action="{{ url_for('logout') }}" method="POST" class="flex-1 h-16">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button type="submit" class="w-full h-full flex flex-col items-center justify-center p-2 text-gray-500 hover:text-primary-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <span class="text-xs mt-1">Logout</span>
+        </button>
+    </form>
+</nav>
+{% endblock %}
