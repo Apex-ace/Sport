@@ -6,79 +6,135 @@
     <title>Verify OTP :: JIT Sports</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        'sans': ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { 'sans': ['Inter', 'sans-serif'] },
                     colors: {
                         primary: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a'
+                            50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6',
+                            600: '#0d9488', 700: '#0f766e', 800: '#115e59', 900: '#134e4a'
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'bounce-in': 'bounceIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        bounceIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.8)' },
+                            '50%': { opacity: '1', transform: 'scale(1.05)' },
+                            '100%': { transform: 'scale(1)' },
                         }
                     }
                 }
             }
         }
     </script>
+
+    <!-- Prevent FOUC for dark mode -->
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+    </script>
+
     <style>
         .hero-gradient {
             background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 25%, #ccfbf1 50%, #99f6e4 75%, #5eead4 100%);
         }
+        .dark .hero-gradient {
+            background: linear-gradient(135deg, #134e4a 0%, #115e59 25%, #0f766e 50%, #0d9488 75%, #14b8a6 100%);
+        }
+
         .glass-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+        .dark .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(55, 65, 81, 0.4);
+        }
+
         .nav-brand {
             background: linear-gradient(135deg, #0d9488, #14b8a6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
         .otp-input {
             letter-spacing: 0.5em;
             text-align: center;
             font-size: 1.5rem;
             font-weight: 600;
         }
-        .floating-email {
-            animation: bounce 2s infinite;
-        }
+
+        .floating-email { animation: bounce 2s infinite; }
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
-        .pulse-ring {
-            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
-        }
+        .pulse-ring { animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite; }
         @keyframes pulse-ring {
-            0% {
-                transform: scale(0.8);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1.2);
-                opacity: 0;
-            }
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        @keyframes football-bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+        .football {
+            width: 80px; height: 80px; background-color: #fff; border-radius: 50%;
+            position: relative;
+            background-image:
+                radial-gradient(circle at 35% 35%, #333 10%, transparent 10.5%),
+                radial-gradient(circle at 65% 35%, #333 10%, transparent 10.5%),
+                radial-gradient(circle at 50% 70%, #333 15%, transparent 15.5%),
+                linear-gradient(45deg, #fff 50%, #eee 50%);
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2), 0 5px 15px rgba(0,0,0,0.3);
+            animation: football-bounce 1.5s infinite ease-out;
+        }
+        .dark .football {
+            background-color: #e5e7eb;
+            background-image:
+                radial-gradient(circle at 35% 35%, #111827 10%, transparent 10.5%),
+                radial-gradient(circle at 65% 35%, #111827 10%, transparent 10.5%),
+                radial-gradient(circle at 50% 70%, #111827 15%, transparent 15.5%),
+                linear-gradient(45deg, #e5e7eb 50%, #d1d5db 50%);
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.4), 0 5px 15px rgba(0,0,0,0.5);
         }
     </style>
 </head>
-<body class="h-full font-sans text-gray-800 hero-gradient">
-    <main class="flex flex-col justify-center items-center min-h-full px-4 sm:px-6 lg:px-8 py-12">
-        <div class="w-full max-w-md">
-             <div class="text-center mb-8">
-                 <a href="{{ url_for('landing') }}" class="flex items-center justify-center space-x-3 group mb-6">
-                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden">
-                            <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain">
-                        </div>
+<body class="h-full font-sans text-gray-800 dark:text-gray-200 hero-gradient">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 z-20 flex-col items-center justify-center bg-gray-900/50 dark:bg-gray-950/80 backdrop-blur-sm">
+        <div class="animate-bounce-in">
+            <div class="football"></div>
+        </div>
+        <p class="mt-8 text-lg font-semibold text-white">Verifying Code...</p>
+    </div>
+
+    <main id="main-content" class="flex flex-col justify-center items-center min-h-full px-4 sm:px-6 lg:px-8 py-12 transition-opacity duration-300">
+        <div class="w-full max-w-md animate-fade-in-up">
+            <div class="text-center mb-8">
+                <a href="{{ url_for('landing') }}" class="flex items-center justify-center space-x-3 group mb-6">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/50 dark:bg-gray-800/50 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden">
+                        <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain">
+                    </div>
                     <span class="text-2xl font-bold nav-brand">JIT Sports</span>
                 </a>
             </div>
@@ -86,34 +142,28 @@
             <div class="glass-card p-8 rounded-3xl shadow-2xl">
                 <div class="text-center mb-8">
                     <div class="relative inline-flex items-center justify-center mb-6">
-                        <div class="absolute inset-0 pulse-ring bg-primary-400 rounded-full opacity-30"></div>
+                        <div class="absolute inset-0 pulse-ring bg-primary-400 dark:bg-primary-500 rounded-full opacity-30"></div>
                         <div class="relative inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full floating-email shadow-xl">
                             <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                         </div>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-900 mb-3">Check Your Email</h2>
-                    <p class="text-gray-600 leading-relaxed">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">Check Your Email</h2>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
                         We've sent a 6-digit verification code to <br> 
-                        <span class="font-semibold text-primary-600 text-lg">{{ email }}</span>
+                        <span class="font-semibold text-primary-600 dark:text-primary-400 text-lg">{{ email }}</span>
                     </p>
-                    <p class="text-sm text-gray-500 mt-2">Code expires in 5 minutes</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">Code expires in 5 minutes</p>
                 </div>
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
-                        <div class="mb-6 p-4 rounded-xl flex items-start space-x-3 {{ 'bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700' if category == 'danger' else 'bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 text-blue-700' }}">
-                            {% if category == 'danger' %}
-                                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                            {% else %}
-                                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                            {% endif %}
+                        <div class="mb-6 p-4 rounded-xl flex items-start space-x-3 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-300">
+                            <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
                             <div class="flex-1">
                                 <p class="font-medium text-sm">{{ message }}</p>
                             </div>
@@ -122,13 +172,15 @@
                     {% endif %}
                 {% endwith %}
 
-                <form action="{{ url_for('verify_otp') }}" method="POST" class="space-y-8">
+                <form action="{{ url_for('verify_otp') }}" method="POST" class="space-y-8" id="otp-form">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div>
-                        <label for="otp" class="block text-sm font-semibold text-gray-700 mb-4 text-center">Enter 6-Digit Verification Code</label>
-                        <input type="text" id="otp" name="otp" 
-                               class="otp-input block w-full px-4 py-5 text-gray-900 placeholder-gray-400 border-2 border-gray-200 rounded-2xl bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 hover:border-primary-300" 
-                               required maxlength="6" placeholder="● ● ● ● ● ●" autocomplete="one-time-code">
+                        <label for="otp" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 text-center">
+                            Enter 6-Digit Verification Code
+                        </label>
+                        <input type="text" id="otp" name="otp"
+                            class="otp-input block w-full px-4 py-5 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-2 border-gray-200 dark:border-gray-600 rounded-2xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 hover:border-primary-300 dark:hover:border-primary-500"
+                            required maxlength="6" placeholder="● ● ● ● ● ●" autocomplete="one-time-code">
                     </div>
                     <button type="submit" class="group w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-2xl shadow-lg text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                         <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,9 +190,8 @@
                     </button>
                 </form>
 
-                 <div class="mt-8 text-center">
-                    <p class="text-sm text-gray-500 mb-4">Didn't receive the code?</p>
-                    <a href="{{ url_for('login') }}" class="inline-flex items-center font-medium text-primary-600 hover:text-primary-700 transition-colors duration-300 group">
+                <div class="mt-8 text-center">
+                    <a href="{{ url_for('login') }}" class="inline-flex items-center font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-300 group">
                         <svg class="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
@@ -151,21 +202,37 @@
         </div>
     </main>
 
+    <!-- Fixed JS -->
     <script>
-        // Auto-format OTP input - allow alphanumeric characters
-        document.getElementById('otp').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^a-zA-Z0-9]/g, ''); // Allow letters and numbers only
-            if (value.length > 6) value = value.slice(0, 6);
-            e.target.value = value.toUpperCase(); // Convert to uppercase for consistency
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpForm = document.getElementById('otp-form');
+            const mainContent = document.getElementById('main-content');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const otpInput = document.getElementById('otp');
 
-        // Auto-focus and submit on complete
-        document.getElementById('otp').addEventListener('input', function(e) {
-            if (e.target.value.length === 6) {
-                setTimeout(() => {
-                    e.target.form.submit();
-                }, 500);
-            }
+            otpForm.addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent auto form submit
+
+                if (otpInput.value.length === 6) {
+                    loadingOverlay.classList.remove('hidden');
+                    loadingOverlay.classList.add('flex');
+                    mainContent.classList.add('opacity-0');
+
+                    // Delay for loader animation, then submit
+                    setTimeout(() => {
+                        otpForm.submit();
+                    }, 500);
+                } else {
+                    alert("Please enter a valid 6-digit OTP before verifying.");
+                }
+            });
+
+            // Input formatting only (no auto-submit)
+            otpInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+                if (value.length > 6) value = value.slice(0, 6);
+                e.target.value = value.toUpperCase();
+            });
         });
     </script>
 </body>

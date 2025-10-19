@@ -1,184 +1,243 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JIT Sports Room Booking :: Home</title>
+    <title>JIT Sports Room Booking :: Welcome</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Import Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        'sans': ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { 'sans': ['Inter', 'sans-serif'] },
                     colors: {
                         primary: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a'
+                            50: '#f0fdfa', 100: '#ccfbf1', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399',
+                            500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 800: '#115e59', 900: '#134e4a'
                         }
                     },
                     animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 3s ease-in-out infinite',
-                        'fade-in-up': 'fadeInUp 0.8s ease-out',
-                        'fade-in-delayed': 'fadeInUp 1s ease-out 0.3s both'
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
                     }
                 }
             }
         }
     </script>
+    <script>
+        // Prevents flash of unstyled content for dark mode
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+    </script>
     <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        /* Basic font smoothing */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .hero-gradient {
-            background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 25%, #ccfbf1 50%, #99f6e4 75%, #5eead4 100%);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .nav-brand {
-            background: linear-gradient(135deg, #0d9488, #14b8a6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Style for the 3D canvas background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* Place it behind all other content */
         }
     </style>
 </head>
-<body class="font-sans">
-    <div class="relative hero-gradient min-h-screen">
-        <!-- Background Pattern -->
-        <div class="absolute inset-0 opacity-10">
-            <svg class="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#14b8a6" stroke-width="0.5"/>
-                    </pattern>
-                </defs>
-                <rect width="100" height="100" fill="url(#grid)" />
-            </svg>
-        </div>
+<body class="font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-200">
 
-        <header class="glass-effect sticky top-0 z-50">
+    <!-- The 3D background will be rendered into this canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="relative min-h-screen flex flex-col">
+        <!-- Header with Glassmorphism Effect -->
+        <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
             <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-20">
-                    <a href="/" class="flex items-center space-x-3 group">
-                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden">
-                            <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain">
+                <div class="flex justify-between items-center h-16 md:h-20">
+                    <!-- Logo and Brand Name -->
+                    <a href="/" class="flex items-center space-x-2 group">
+                        <div class="w-10 h-10 p-1 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800 shadow group-hover:shadow-md transition">
+                            <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT Logo" class="h-full w-full object-contain">
                         </div>
-                        <span class="text-2xl font-bold nav-brand">JIT Sports</span>
+                        <span class="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+                            JIT Sports
+                        </span>
                     </a>
-                    <div class="hidden md:flex items-center space-x-4">
-                        <a href="{{ url_for('login') }}" class="px-6 py-2.5 text-sm font-semibold text-gray-700 hover:text-primary-600 hover:bg-white/50 rounded-xl transition-all duration-300">
+                    <!-- Desktop Navigation Links -->
+                    <div class="hidden md:flex items-center space-x-2">
+                        <a href="{{ url_for('login') }}" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                             Sign In
                         </a>
-                        <a href="{{ url_for('admin_login') }}" class="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold text-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <a href="{{ url_for('admin_login') }}" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 rounded-lg shadow hover:shadow-md transition">
                             Admin Portal
                         </a>
                     </div>
+                    <!-- Mobile Menu Button -->
                     <div class="md:hidden">
-                        <button id="menu-btn" type="button" class="inline-flex items-center justify-center p-3 rounded-xl text-gray-600 hover:text-primary-600 hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 transition-all duration-300">
+                        <button id="menu-btn" type="button" aria-expanded="false" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
                             <span class="sr-only">Open main menu</span>
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
                         </button>
                     </div>
                 </div>
-                <div class="hidden md:hidden" id="mobile-menu">
-                    <div class="pt-2 pb-4 space-y-2">
-                        <a href="{{ url_for('login') }}" 
-                           class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-white/50 hover:text-primary-600 transition-all duration-300">
-                           Sign In
-                        </a>
-                        <a href="{{ url_for('admin_login') }}" 
-                           class="block px-4 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold text-base hover:from-primary-700 hover:to-primary-800 transition-all duration-300">
-                           Admin Portal
-                        </a>
-                    </div>
-                </div>
             </nav>
-        </header>
-
-        <main>
-            <!-- Hero Section -->
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 text-center relative">
-                <!-- Floating Elements -->
-                <div class="absolute top-10 left-10 w-20 h-20 bg-primary-200 rounded-full animate-float opacity-60"></div>
-                <div class="absolute top-20 right-20 w-16 h-16 bg-primary-300 rounded-full animate-float opacity-40" style="animation-delay: -2s"></div>
-                <div class="absolute bottom-20 left-20 w-12 h-12 bg-primary-400 rounded-full animate-float opacity-50" style="animation-delay: -4s"></div>
-                
-                <div class="relative z-10">
-                    <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight tracking-tight mb-8 animate-fade-in-up">
-                        Book Your <br>
-                        <span class="bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">Sports Room</span> 
-                        <br>Instantly
-                    </h1>
-                    <p class="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed animate-fade-in-delayed">
-                        Reserve premium indoor sports facilities at JIT with ease. From table tennis to badminton, 
-                        find and book your perfect game time in seconds with our modern booking system.
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-delayed">
-                        <a href="{{ url_for('login') }}" class="group bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold px-10 py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl flex items-center space-x-3">
-                            <span class="text-lg">Start Booking Now</span>
-                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                            </svg>
-                        </a>
-                        <a href="#features" class="group px-8 py-4 text-primary-700 font-semibold hover:text-primary-800 transition-colors duration-300 flex items-center space-x-2">
-                            
-                        </a>
-                    </div>
+            <!-- Mobile Menu Panel -->
+            <div class="hidden md:hidden border-t border-gray-200 dark:border-gray-800" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="{{ url_for('login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Sign In</a>
+                    <a href="{{ url_for('admin_login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-primary-600 hover:bg-primary-700">Admin Portal</a>
                 </div>
             </div>
-            
-            
+        </header>
+
+        <!-- Main Content (Flex-grow pushes footer to bottom) -->
+        <main class="flex-grow">
+            <!-- Hero Section -->
+            <section class="relative pt-24 pb-32 sm:pt-32 sm:pb-40">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight tracking-tight mb-6 animate-fade-in-up">
+                        Book Your Game, <br class="sm:hidden">
+                        <span class="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+                            Instantly
+                        </span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up" style="animation-delay: 150ms;">
+                        Reserve your spot in JIT's premium sports facilities. Find and book your perfect game time in seconds.
+                    </p>
+                    <div class="animate-fade-in-up" style="animation-delay: 300ms;">
+                        <a href="{{ url_for('login') }}" class="group inline-flex items-center justify-center px-8 py-4 text-base sm:text-lg font-bold text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 ease-in-out">
+                            Start Booking Now
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
         </main>
-        
-        <footer class="glass-effect border-t border-white/20">
-            <div class="container mx-auto py-12 px-4 text-center">
+
+        <!-- Footer -->
+        <footer class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800">
+            <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden">
-                            <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT College Logo" class="w-full h-full object-contain">
-                        </div>
-                        <span class="text-xl font-bold nav-brand">JIT Sports</span>
-                    </div>
-                    <p class="text-gray-600 font-medium">© 2025 JIT Sports Room Booking. Crafted with care for athletes.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-600 hover:text-primary-600 transition-colors duration-300">Privacy</a>
-                        <a href="#" class="text-gray-600 hover:text-primary-600 transition-colors duration-300">Terms</a>
-                        <a href="#" class="text-gray-600 hover:text-primary-600 transition-colors duration-300">Support</a>
-                    </div>
+                    <div class="flex items-center space-x-2">
+                         <div class="w-8 h-8 p-1 rounded-md flex items-center justify-center bg-gray-100 dark:bg-gray-800 shadow-sm">
+                             <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT Logo" class="h-full w-full object-contain">
+                         </div>
+                         <span class="text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">JIT Sports</span>
+                     </div>
+                     <p class="text-sm text-gray-500 dark:text-gray-400">&copy; {{ now_utc.year }} JIT Sports. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     </div>
-    <script>
-        document.getElementById('menu-btn').addEventListener('click', function() {
-            var mobileMenu = document.getElementById('mobile-menu');
+
+    <script type="module">
+        // --- 3D Background Setup ---
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true }); // alpha: true makes background transparent
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xffffff, 0.8);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        // --- Objects ---
+        const objects = [];
+        const geometryTypes = [
+            new THREE.TorusGeometry(1, 0.4, 16, 100),
+            new THREE.IcosahedronGeometry(1.2),
+            new THREE.OctahedronGeometry(1.2)
+        ];
+
+        const lightMaterial = new THREE.MeshStandardMaterial({ color: 0x14b8a6, roughness: 0.4, metalness: 0.1 });
+        const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x0f766e, roughness: 0.4, metalness: 0.1 });
+
+        for (let i = 0; i < 20; i++) {
+            const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const material = isDarkMode ? darkMaterial : lightMaterial;
+            const mesh = new THREE.Mesh(geometry, material);
+
+            mesh.position.set(
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 20
+            );
+            mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+            const scale = Math.random() * 0.4 + 0.2;
+            mesh.scale.set(scale, scale, scale);
+            
+            objects.push(mesh);
+            scene.add(mesh);
+        }
+        
+        camera.position.z = 8;
+        
+        // --- Mouse Interaction ---
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+
+        // --- Animation Loop ---
+        const clock = new THREE.Clock();
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+            
+            // Animate objects
+            objects.forEach(obj => {
+                obj.rotation.x += 0.002;
+                obj.rotation.y += 0.003;
+            });
+            
+            // Move camera with mouse
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
+            camera.position.y += (mouseY * 2 - camera.position.y) * 0.02;
+            
+            camera.lookAt(scene.position);
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- Handle Window Resize ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+
+        // --- Mobile Menu Toggle ---
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
     </script>
 </body>
 </html>
+

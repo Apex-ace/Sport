@@ -3,27 +3,13 @@
 
 {% block head_styles %}
 <style>
+    /* Keyframe for fadeInUp animation */
     @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    main::-webkit-scrollbar { width: 6px; }
-    main::-webkit-scrollbar-track { background: #f1f5f9; }
-    main::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-    .stats-gradient-1 { background: linear-gradient(135deg, #14b8a6, #0d9488); }
-    .stats-gradient-2 { background: linear-gradient(135deg, #10b981, #059669); }
-    .stats-gradient-3 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
     
-    .game-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        transition: all 0.3s ease;
-    }
-    .game-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-    }
-
+    /* Apply animation with delays */
     .animate-fade-in-up {
         opacity: 0;
         animation: fadeInUp 0.6s ease-out forwards;
@@ -33,82 +19,205 @@
     .animation-delay-300 { animation-delay: 300ms; }
     .animation-delay-400 { animation-delay: 400ms; }
     .animation-delay-500 { animation-delay: 500ms; }
+
+    /* Custom scrollbar for desktop */
+    @media (min-width: 768px) {
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-track { background: #f1f5f9; }
+        body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark body::-webkit-scrollbar-track { background: #1f2937; }
+        .dark body::-webkit-scrollbar-thumb { background: #4b5563; }
+    }
+
+    /* Horizontal scroll container for stats on mobile */
+    .stats-scroll-container {
+        display: flex;
+        gap: 0.75rem; /* gap-3 */
+        overflow-x: auto;
+        padding: 0.25rem 1rem 1rem 1rem; /* px-4 pb-4 pt-1 */
+        margin: 0 -1rem; /* Negative margin to bleed edges */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        scrollbar-width: none; /* Hide scrollbar Firefox */
+    }
+    .stats-scroll-container::-webkit-scrollbar {
+        display: none; /* Hide scrollbar Chrome/Safari */
+    }
+
+    /* === NEW: Game Card "Box" Styles === */
+    .game-card {
+        display: flex; /* Use flexbox for layout */
+        align-items: center; /* Vertically center content */
+        background-color: white;
+        border-radius: 1rem; /* rounded-2xl */
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05); /* Softer shadow */
+        transition: all 0.2s ease-in-out;
+    }
+    .dark .game-card {
+        background-color: #1f2937; /* dark:bg-gray-800 */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.15);
+    }
+    .game-card:hover {
+        transform: translateY(-3px) scale(1.01); /* Subtle lift and scale */
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.06);
+    }
+     .dark .game-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+     }
+    
+    .game-card-image-wrapper {
+        flex-shrink: 0; /* Prevent image from shrinking */
+        width: 100px; /* Fixed width */
+        height: 100px; /* Fixed height */
+    }
+     /* Desktop image size slightly larger */
+    @media (min-width: 768px) {
+      .game-card-image-wrapper {
+          width: 120px;
+          height: 120px;
+      }
+    }
+
+    .game-card-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Cover the area */
+    }
+
+    .game-card-content {
+        flex-grow: 1; /* Allow content to fill space */
+        padding: 0.75rem 1rem; /* p-3 sm:p-4 */
+        min-width: 0; /* Prevent text overflow issues */
+    }
+
+     .game-card-title {
+        font-size: 1.125rem; /* text-lg */
+        font-weight: 700; /* font-bold */
+        color: #111827; /* gray-900 */
+        margin-bottom: 0.5rem; /* mb-2 */
+        line-height: 1.4; /* Ensure good line spacing */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; /* Keep title on one line */
+    }
+     .dark .game-card-title { color: #f9fafb; /* dark:text-gray-100 */ }
+
+     .game-card-info {
+        display: flex;
+        flex-direction: column; /* Stack info vertically */
+        gap: 0.25rem; /* gap-1 */
+        margin-bottom: 0.75rem; /* mb-3 */
+     }
+
+    .game-card-info-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem; /* text-sm */
+        color: #4b5563; /* text-gray-600 */
+    }
+    .dark .game-card-info-item { color: #9ca3af; /* dark:text-gray-400 */ }
+    
+    .game-card-info-item svg {
+        width: 1rem; /* w-4 */
+        height: 1rem; /* h-4 */
+        margin-right: 0.5rem; /* mr-2 */
+        color: #9ca3af; /* text-gray-400 */
+    }
+     .dark .game-card-info-item svg { color: #6b7280; /* dark:text-gray-500 */ }
+
+    .game-card-button {
+        display: inline-block; /* Allows padding and alignment */
+        padding: 0.5rem 1rem; /* py-2 px-4 */
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 600; /* font-semibold */
+        border-radius: 0.5rem; /* rounded-lg */
+        background-color: #14b8a6; /* primary-500 */
+        color: white;
+        text-align: center;
+        transition: background-color 0.2s ease;
+    }
+    .game-card-button:hover {
+        background-color: #0d9488; /* primary-600 */
+    }
+    .dark .game-card-button {
+        background-color: #0d9488; /* primary-600 */
+    }
+    .dark .game-card-button:hover {
+        background-color: #0f766e; /* primary-700 */
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="mb-8 animate-fade-in-up">
-    <h1 class="text-2xl md:text-3xl text-gray-600">Welcome back,</h1>
-    <p class="text-4xl md:text-5xl font-bold text-gray-900">{{ current_user.username.split('@')[0] | title }}!</p>
-</div>
+<div class="bg-gray-100 dark:bg-gray-950 min-h-screen pb-24 md:pb-10">
 
-<section class="mb-10">
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <a href="#available-games" class="block">
-            <div class="stats-gradient-1 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up animation-delay-200 transition-transform duration-300 hover:scale-105">
-                <p class="text-sm font-medium text-white/80 mb-1">Total Games</p>
-                <p class="text-4xl font-bold">{{ stats.total_games }}</p>
-            </div>
-        </a>
-        <a href="{{ url_for('profile') }}" class="block">
-            <div class="stats-gradient-2 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up animation-delay-300 transition-transform duration-300 hover:scale-105">
-                <p class="text-sm font-medium text-white/80 mb-1">Your Bookings</p>
-                <p class="text-4xl font-bold">{{ stats.user_bookings }}</p>
-            </div>
-        </a>
-        <a href="{{ url_for('profile') }}" class="block">
-            <div class="stats-gradient-3 text-white p-6 rounded-2xl shadow-lg animate-fade-in-up animation-delay-400 transition-transform duration-300 hover:scale-105">
-                <p class="text-sm font-medium text-white/80 mb-1">Today's Games</p>
-                <p class="text-4xl font-bold">{{ stats.today_bookings }}</p>
-            </div>
-        </a>
-    </div>
-</section>
+    <header class="bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-6 mb-6 animate-fade-in-up">
+        <h1 class="text-xl font-semibold text-gray-500 dark:text-gray-400">Welcome back,</h1>
+        <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 truncate">{{ current_user.username.split('@')[0] | title }}!</p>
+    </header>
 
-<section class="pb-24 md:pb-0">
-    <h2 id="available-games" class="text-2xl font-semibold text-gray-900 mb-6 animate-fade-in-up animation-delay-500">Available Games</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {% for game in games %}
-        <div class="game-card border border-gray-100 rounded-2xl shadow-md overflow-hidden group animate-fade-in-up" style="animation-delay: {{ 500 + loop.index * 50 }}ms;">
-            <div class="relative">
-                <img src="{{ url_for('static', filename='img/' + game.image_filename) if game.image_filename else 'https://placehold.co/400x200/e2e8f0/94a3b8?text=No+Image' }}" 
-                     alt="Image of {{ game.name }}" 
-                     class="w-full h-32 object-cover">
+    <section class="mb-8 px-4 sm:px-6">
+        <div class="stats-scroll-container md:grid md:grid-cols-3 md:gap-6 md:p-0 md:m-0 md:overflow-visible">
+            <div class="flex-shrink-0 w-48 md:w-auto bg-gradient-to-br from-primary-500 to-primary-700 text-white p-5 rounded-xl shadow-lg animate-fade-in-up animation-delay-200 transition-transform duration-300 hover:scale-105">
+                <p class="text-sm font-medium text-primary-100 mb-1">Total Games</p>
+                <p class="text-3xl font-bold">{{ stats.total_games }}</p>
             </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <h3 class="font-bold text-lg text-gray-900 group-hover:text-primary-600 transition-colors">{{ game.name }}</h3>
-                <div class="flex-grow mt-2">
-                    <div class="flex items-center text-gray-600 text-sm mb-2">
-                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0117 18h-1.26a1 1 0 00-1.94-1.294A5.972 5.972 0 0012.93 17zM7.07 17c-.046-.327-.07-.66-.07-1a6.97 6.97 0 011.5-4.33A5 5 0 003 18h1.26a1 1 0 011.94-1.294A5.972 5.972 0 017.07 17z"/></svg>
-                        <span>Max {{ game.max_players }} players</span>
-                    </div>
-                    <div class="flex items-center text-gray-600 text-sm">
-                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                        <span>{{ game.duration_minutes }} minutes</span>
-                    </div>
-                </div>
-                <a href="{{ url_for('book_game', game_id=game.id) }}" class="block w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg text-sm transition-colors text-center mt-4">Book Now</a>
-            </div>
+            
+            <a href="{{ url_for('profile') }}" class="block flex-shrink-0 w-48 md:w-auto bg-gradient-to-br from-green-500 to-green-700 text-white p-5 rounded-xl shadow-lg animate-fade-in-up animation-delay-300 transition-transform duration-300 hover:scale-105">
+                <p class="text-sm font-medium text-green-100 mb-1">Your Bookings</p>
+                <p class="text-3xl font-bold">{{ stats.user_bookings }}</p>
+            </a>
+            
+            <a href="{{ url_for('profile') }}" class="block flex-shrink-0 w-48 md:w-auto bg-gradient-to-br from-blue-500 to-blue-700 text-white p-5 rounded-xl shadow-lg animate-fade-in-up animation-delay-400 transition-transform duration-300 hover:scale-105">
+                <p class="text-sm font-medium text-blue-100 mb-1">Today's Bookings</p>
+                <p class="text-3xl font-bold">{{ stats.today_bookings }}</p>
+            </a>
         </div>
-        {% endfor %}
-    </div>
-</section>
+    </section>
 
-<nav class="md:hidden fixed w-full bottom-0 bg-white/80 backdrop-blur-sm border-t border-gray-200 flex items-center z-40">
-    <a href="{{ url_for('home') }}" class="flex-1 flex flex-col items-center justify-center p-2 h-16 text-primary-600">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-        <span class="text-xs mt-1">Home</span>
-    </a>
-    <a href="{{ url_for('profile') }}" class="flex-1 flex flex-col items-center justify-center p-2 h-16 text-gray-500 hover:text-primary-600 transition-colors">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
-        <span class="text-xs mt-1">My Bookings</span>
-    </a>
-    <form action="{{ url_for('logout') }}" method="POST" class="flex-1 h-16">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <button type="submit" class="w-full h-full flex flex-col items-center justify-center p-2 text-gray-500 hover:text-primary-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            <span class="text-xs mt-1">Logout</span>
-        </button>
-    </form>
-</nav>
+    <section class="px-4 sm:px-6">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4 animate-fade-in-up animation-delay-500">Available Games</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {% for game in games %}
+            <a href="{{ url_for('book_game', game_id=game.id) }}" 
+               class="block group animate-fade-in-up"  {# Applied group here for hover effect #}
+               style="animation-delay: {{ 500 + loop.index * 60 }}ms;">
+                
+                <div class="game-card"> 
+                    <div class="game-card-image-wrapper">
+                        <img src="{{ url_for('static', filename='img/' + game.image_filename) if game.image_filename else 'https://placehold.co/120x120/e2e8f0/94a3b8?text=N/A' }}" 
+                             alt="{{ game.name }}" 
+                             class="game-card-image">
+                    </div>
+
+                    <div class="game-card-content">
+                        <div> {# Wrapper div to push button down #}
+                            <h3 class="game-card-title group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">{{ game.name }}</h3>
+                            <div class="game-card-info">
+                                <div class="game-card-info-item">
+                                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0117 18h-1.26a1 1 0 00-1.94-1.294A5.972 5.972 0 0012.93 17zM7.07 17c-.046-.327-.07-.66-.07-1a6.97 6.97 0 011.5-4.33A5 5 0 003 18h1.26a1 1 0 011.94-1.294A5.972 5.972 0 007.07 17z"/></svg>
+                                    <span>{{ game.max_players }} players</span>
+                                </div>
+                                <div class="game-card-info-item">
+                                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                                    <span>{{ game.duration_minutes }} min</span>
+                                </div>
+                            </div>
+                        </div>
+                        {# Button moved outside the inner div to align to bottom if needed, but flex layout handles it #}
+                        {# <span class="game-card-button">Book</span> #} {# Removed explicit button span, the whole card is a link #}
+                    </div> 
+                </div> 
+            </a> 
+            {% else %}
+            <p class="text-center text-gray-500 dark:text-gray-400 col-span-full mt-4">
+                No games are available right now. Check back later!
+            </p>
+            {% endfor %}
+        </div>
+    </section>
+
+</div> 
 {% endblock %}
