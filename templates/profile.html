@@ -3,165 +3,207 @@
 
 {% block head_styles %}
 <style>
-    /* Booking Card Styles */
-    .booking-card { 
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
-        transition: all 0.3s ease; 
-        border: 1px solid #e2e8f0; /* gray-200 */
+    main {
+        background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
+    }
+    .dark main {
+        background: linear-gradient(to bottom right, #111827, #1f2937);
+    }
+
+    .profile-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e5e7eb;
+        border-radius: 1.5rem;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+        transition: background 0.3s ease, border 0.3s ease;
+    }
+    .dark .profile-container {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border-color: #374151;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, #cbd5e1, transparent);
+        margin: 2.5rem 0;
+    }
+    .dark .section-divider {
+        background: linear-gradient(to right, transparent, #475569, transparent);
+    }
+
+    .booking-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    .booking-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     }
     .dark .booking-card {
-        background: linear-gradient(135deg, #1f2937 0%, #111827 100%); /* dark:bg-gray-800 to dark:bg-gray-900 */
-        border-color: #374151; /* dark:border-gray-700 */
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border-color: #374151;
+    }
+    .dark .booking-card:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
-    .booking-card:hover { 
-        transform: translateY(-4px); 
-        box-shadow: 0 10px 25px rgba(0,0,0,0.07); 
+    .booking-card.cancelled {
+        opacity: 0.7;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     }
-     .dark .booking-card:hover {
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-     }
-
-    /* Cancelled Booking Card */
-    .booking-card.cancelled { 
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
-        opacity: 0.7; 
-    }
-     .dark .booking-card.cancelled {
-        background: linear-gradient(135deg, #374151 0%, #1f2937 100%); /* dark:bg-gray-700 to dark:bg-gray-800 */
+    .dark .booking-card.cancelled {
         opacity: 0.6;
-     }
-
-    .booking-card.cancelled h3 { 
-        text-decoration: line-through; 
-        color: #64748b; /* slate-500 */
-    }
-    .dark .booking-card.cancelled h3 {
-        color: #94a3b8; /* dark:text-slate-400 */
+        background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
     }
 
-    /* Modal Backdrop */
-    .modal-backdrop { 
-        background-color: rgba(15, 23, 42, 0.6); /* slate-900 */
-        backdrop-filter: blur(8px); 
+    .booking-card.cancelled h3 {
+        text-decoration: line-through;
+        color: #94a3b8;
     }
-     .dark .modal-backdrop {
-        background-color: rgba(0, 0, 0, 0.7);
-     }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8 bg-gray-100 dark:bg-gray-950 min-h-screen">
-    <div class="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-lg mb-8 sm:mb-12">
-        <div class="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-8 text-center sm:text-left">
-            <img src="{{ user.profile_picture or 'https://ui-avatars.com/api/?name=' + user.username|urlencode + '&background=0d9488&color=ffffff&size=128&bold=true' }}" 
-                 alt="Profile Picture" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md">
-            
-            <div class="flex-1">
-                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    Welcome, {{ user.username.split('@')[0].title() }}!
-                </h1>
-                <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-base break-all">{{ user.username }}</p>
-            </div>
-
-            <div class="text-center bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl">
-                <p class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ stats.user_bookings }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Confirmed</p>
-            </div>
-        </div>
+<main class="min-h-screen py-10 px-6 flex justify-center">
+  <div class="profile-container max-w-5xl w-full p-8 md:p-10">
+    
+    <!-- Profile Header -->
+    <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-10">
+      <img src="{{ user.profile_picture or 'https://ui-avatars.com/api/?name=' + user.username|urlencode + '&background=0d9488&color=ffffff&size=128&bold=true' }}"
+           alt="Profile Picture"
+           class="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md">
+      <div class="flex-1 text-center md:text-left">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          Welcome, {{ user.username.split('@')[0].title() }}!
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">{{ user.username }}</p>
+      </div>
+      <div class="text-center bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl">
+        <p class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ stats.user_bookings }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Confirmed</p>
+      </div>
     </div>
 
-    <div>
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4">
-            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">My Bookings</h2>
-            <a href="{{ url_for('home') }}" class="w-full sm:w-auto text-center bg-primary-600 hover:bg-primary-700 dark:hover:bg-primary-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors">
-                Book New Session
-            </a>
+    <div class="section-divider"></div>
+    <section>
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Notification Preferences</h2>
+      <form action="{{ url_for('update_notification_preference') }}" method="POST" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="flex items-center space-x-3">
+          <input 
+            type="checkbox" 
+            name="notifications" 
+            id="notificationCheck"
+            {% if user.wants_cancellation_notifications %}checked{% endif %}
+            class="w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded cursor-pointer accent-primary-600 
+                   focus:ring-primary-500 dark:focus:ring-primary-600 dark:bg-gray-700 dark:border-gray-600"
+          >
+          <span class="text-gray-700 dark:text-gray-300 cursor-pointer">
+            Email me when a booked slot becomes available.
+          </span>
+        </label>
+        <button type="submit" class="bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 
+                                     text-white px-6 py-3 rounded-lg font-semibold shadow-md focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-800 transition">
+          Save Preferences
+        </button>
+      </form>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Bookings -->
+    <section>
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">My Bookings 📅</h2>
+        <a href="{{ url_for('home') }}" class="bg-primary-600 hover:bg-primary-700 dark:hover:bg-primary-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition">
+          Book New Session
+        </a>
+      </div>
+
+      {% if bookings %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for booking in bookings %}
+        <div class="booking-card p-6 rounded-2xl shadow-md {% if booking.status == 'Cancelled' %}cancelled{% endif %}">
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="font-bold text-xl text-gray-900 dark:text-gray-100">{{ booking.game.name }}</h3>
+            {% if booking.status == 'Confirmed' %}
+              <span class="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 text-xs font-semibold rounded-full border border-green-200 dark:border-green-700">Confirmed</span>
+            {% else %}
+              <span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600">Cancelled</span>
+            {% endif %}
+          </div>
+
+          <div class="space-y-2 text-gray-700 dark:text-gray-300 mb-4">
+            <p><strong>Date:</strong> {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d, %Y') }}</p>
+            <p><strong>Time:</strong> {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%I:%M %p') }}</p>
+          </div>
+
+          <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Booked on {{ booking.created_at.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%b %d, %Y') }}</p>
+            {% if booking.status == 'Confirmed' and booking.booking_time > now_utc %}
+            <button type="button"
+                    onclick="openCancelModal({{ booking.id }}, '{{ booking.game.name }}', '{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d at %I:%M %p') }}')"
+                    class="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60 text-xs font-bold py-2 px-4 rounded-lg transition">
+              Cancel Booking
+            </button>
+            {% endif %}
+          </div>
         </div>
-        
-        {% if bookings %}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {% for booking in bookings %}
-                <div class="booking-card p-5 rounded-2xl shadow-md group {% if booking.status == 'Cancelled' %}cancelled{% endif %}">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="font-bold text-xl text-gray-900 dark:text-gray-100">{{ booking.game.name }}</h3>
-                        {% if booking.status == 'Confirmed' %}
-                            <span class="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 text-xs font-semibold rounded-full border border-green-200 dark:border-green-700">Confirmed</span>
-                        {% elif booking.status == 'Cancelled' %}
-                            <span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600">Cancelled</span>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="space-y-2 mb-4 text-gray-700 dark:text-gray-300">
-                        <p><strong>Date:</strong> {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d, %Y') }}</p>
-                        <p><strong>Time:</strong> {{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%I:%M %p') }}</p>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-4 border-t border-gray-200 dark:border-gray-700 gap-2">
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Booked on {{ booking.created_at.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%b %d, %Y') }}</p>
-                        {% if booking.status == 'Confirmed' and booking.booking_time > now_utc %}
-                            <button type="button" 
-                                    onclick="openCancelModal({{ booking.id }}, '{{ booking.game.name }}', '{{ booking.booking_time.astimezone(timezone(timedelta(hours=5, minutes=30))).strftime('%A, %B %d at %I:%M %p') }}')" 
-                                    class="w-full sm:w-auto bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60 text-xs font-bold py-2 px-4 rounded-lg transition-colors">
-                                Cancel Booking
-                            </button>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center p-8 sm:p-12 md:p-16 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Ready to Get Active?</h3>
-                <p class="text-gray-600 dark:text-gray-300 text-base sm:text-lg mb-6">You haven't booked any sessions yet.</p>
-                <a href="{{ url_for('home') }}" class="block sm:inline-block px-8 py-3 bg-primary-600 text-white font-bold rounded-lg shadow-xl hover:bg-primary-700 dark:hover:bg-primary-500 transition-colors">
-                    Book Your First Game
-                </a>
-            </div>
-        {% endif %}
-    </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center p-12 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Ready to Get Active?</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">You haven't booked any sessions yet.</p>
+        <a href="{{ url_for('home') }}" class="px-8 py-3 bg-primary-600 text-white font-bold rounded-lg shadow-xl hover:bg-primary-700 dark:hover:bg-primary-500 transition">
+          Book Your First Game
+        </a>
+      </div>
+      {% endif %}
+    </section>
+
+  </div>
 </main>
 
+<!-- Cancel Modal -->
 <div id="cancel-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
-        <div class="text-center">
-            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Cancel Booking?</h3>
-            <p class="text-gray-600 dark:text-gray-300 mt-3 sm:mt-4">
-                Are you sure you want to cancel for <strong id="modal-game-name" class="text-primary-600 dark:text-primary-400"></strong> on <strong id="modal-booking-time" class="text-gray-800 dark:text-gray-200"></strong>?
-            </p>
-        </div>
-        <div class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <button onclick="closeCancelModal()" type="button" class="w-full rounded-xl px-4 py-3 bg-gray-100 dark:bg-gray-600 font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors">
-                Go Back
-            </button>
-            <form id="cancel-form" method="POST" action="">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <button type="submit" class="w-full rounded-xl px-4 py-3 bg-red-600 font-medium text-white hover:bg-red-700 dark:hover:bg-red-500 transition-colors">
-                    Yes, Cancel
-                </button>
-            </form>
-        </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
+    <div class="text-center">
+      <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Cancel Booking?</h3>
+      <p class="text-gray-600 dark:text-gray-300 mt-4">
+        Are you sure you want to cancel for <strong id="modal-game-name" class="text-primary-600 dark:text-primary-400"></strong> on <strong id="modal-booking-time" class="text-gray-800 dark:text-gray-200"></strong>?
+      </p>
     </div>
+    <div class="mt-8 grid grid-cols-2 gap-4">
+      <button onclick="closeCancelModal()" type="button" class="w-full rounded-xl px-4 py-3 bg-gray-100 dark:bg-gray-600 font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-500 transition">
+        Go Back
+      </button>
+      <form id="cancel-form" method="POST" action="">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="w-full rounded-xl px-4 py-3 bg-red-600 font-medium text-white hover:bg-red-700 dark:hover:bg-red-500 transition">
+          Yes, Cancel
+        </button>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
-    // No changes needed in JavaScript
-    const cancelModal = document.getElementById('cancel-modal');
-    const cancelForm = document.getElementById('cancel-form');
-    const modalGameName = document.getElementById('modal-game-name');
-    const modalBookingTime = document.getElementById('modal-booking-time');
+const cancelModal = document.getElementById('cancel-modal');
+const cancelForm = document.getElementById('cancel-form');
+const modalGameName = document.getElementById('modal-game-name');
+const modalBookingTime = document.getElementById('modal-booking-time');
 
-    function openCancelModal(bookingId, gameName, bookingTime) {
-        cancelForm.action = `/cancel_booking/${bookingId}`;
-        modalGameName.textContent = gameName;
-        modalBookingTime.textContent = bookingTime;
-        cancelModal.classList.remove('hidden');
-    }
-
-    function closeCancelModal() {
-        cancelModal.classList.add('hidden');
-    }
-    cancelModal.addEventListener('click', (e) => e.target === cancelModal && closeCancelModal());
+function openCancelModal(bookingId, gameName, bookingTime) {
+    cancelForm.action = `/cancel_booking/${bookingId}`;
+    modalGameName.textContent = gameName;
+    modalBookingTime.textContent = bookingTime;
+    cancelModal.classList.remove('hidden');
+}
+function closeCancelModal() {
+    cancelModal.classList.add('hidden');
+}
+cancelModal.addEventListener('click', (e) => e.target === cancelModal && closeCancelModal());
 </script>
 {% endblock %}

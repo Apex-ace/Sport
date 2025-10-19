@@ -58,6 +58,9 @@ class User(UserMixin, db.Model):
     otp_hash = db.Column(db.String)
     otp_expiry = db.Column(TIMESTAMP(timezone=True))
     bookings = relationship("Booking", back_populates="user", cascade="all, delete-orphan")
+    
+    # --- NEW COLUMN ---
+    wants_cancellation_notifications = db.Column(db.Boolean, nullable=False, default=False)
 
 class Game(db.Model):
     __tablename__ = 'games'
@@ -65,7 +68,7 @@ class Game(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
     max_players = db.Column(db.Integer, nullable=False, default=1)
     duration_minutes = db.Column(db.Integer, nullable=False, default=30)
-    image_filename = db.Column(db.String, nullable=True) # <-- This is the required column for images
+    image_filename = db.Column(db.String, nullable=True)
     bookings = relationship("Booking", back_populates="game")
 
 class Booking(db.Model):
@@ -86,7 +89,7 @@ def load_user(user_id):
     except (ValueError, TypeError):
         return None
 
-# --- Helper Functions (No changes needed here) ---
+# --- Helper Functions ---
 def send_otp_email(recipient_email, otp):
     # (Your existing code for sending OTP emails)
     msg = EmailMessage()
@@ -136,6 +139,49 @@ The Sports Room Team""")
         print(f"--- SMTP Booking Confirmation ERROR: {e} ---")
         return False
 
+# --- NEW HELPER FUNCTION ---
+def send_cancellation_notification_email(recipient_list, game_name, booking_dt):
+    """
+    Sends a "slot available" notification to a list of recipients via BCC.
+    """
+    if not recipient_list:
+        return False
+
+    ist_tz = pytz.timezone('Asia/Kolkata')
+    booking_dt_ist = booking_dt.astimezone(ist_tz)
+    date_str = booking_dt_ist.strftime('%A, %B %d, %Y')
+    time_str = booking_dt_ist.strftime('%I:%M %p')
+    
+    msg = EmailMessage()
+    msg.set_content(f"""Hi everyone,
+
+A booking for {game_name} has been cancelled and is now available.
+
+Game: {game_name}
+Date: {date_str}
+Time: {time_str}
+
+You can book this slot now via the app.
+
+Thanks,
+The Sports Room Team""")
+    msg['Subject'] = f'Slot Available: {game_name} on {date_str}'
+    msg['From'] = app.config['MAIL_SENDER']
+    # Send 'To' the sender itself; the magic happens in Bcc
+    msg['To'] = app.config['MAIL_SENDER'] 
+    msg['Bcc'] = ', '.join(recipient_list)
+
+    try:
+        server = smtplib.SMTP(app.config['SMTP_SERVER'], app.config['SMTP_PORT'])
+        server.starttls()
+        server.login(app.config['SMTP_USERNAME'], app.config['SMTP_PASSWORD'])
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"--- SMTP Cancellation Notification ERROR: {e} ---")
+        return False
+
 # --- Context Processors ---
 @app.context_processor
 def inject_now():
@@ -162,8 +208,7 @@ def home():
     }
     return render_template('home.html', games=games, stats=stats)
 
-# --- All other routes (book_game, auth, admin, etc.) remain unchanged ---
-# (Your existing code for all other routes)
+# --- Booking Routes ---
 @app.route('/book/<int:game_id>', methods=['GET', 'POST'])
 @login_required
 def book_game(game_id):
@@ -239,6 +284,7 @@ def book_game(game_id):
     
     return render_template('book_game.html', game=game, booked_slots_json=json.dumps(booked_slots), is_new_user=json.dumps(is_new_user_check), today=date.today().isoformat())
 
+# --- MODIFIED ROUTE ---
 @app.route('/cancel_booking/<int:booking_id>', methods=['POST'])
 @login_required
 def cancel_booking(booking_id):
@@ -263,15 +309,39 @@ def cancel_booking(booking_id):
 
     # If all checks pass, proceed with cancellation
     try:
+        # --- Store details *before* committing ---
+        game_name_for_email = booking.game.name
+        booking_time_for_email = booking.booking_time
+        cancelling_user_id = booking.user_id
+        is_future_slot = booking.booking_time > datetime.now(timezone.utc)
+        
+        # --- Perform cancellation ---
         booking.status = 'Cancelled'
         db.session.commit()
-        flash(f'Booking for {booking.game.name} on {booking.booking_time.strftime("%Y-%m-%d %H:%M")} has been cancelled.', 'success')
+        flash(f'Booking for {game_name_for_email} on {booking_time_for_email.strftime("%Y-%m-%d %H:%M")} has been cancelled.', 'success')
+
+        # --- NEW: Send notification to users who opted-in ---
+        if is_future_slot:
+            # Find all users who want notifications, *except* the one who just cancelled
+            all_other_users = User.query.filter(
+                User.id != cancelling_user_id,
+                User.wants_cancellation_notifications == True
+            ).all()
+            
+            recipient_list = [user.username for user in all_other_users]
+            
+            if recipient_list:
+                send_cancellation_notification_email(recipient_list, game_name_for_email, booking_time_for_email)
+                flash('All opted-in users have been notified of the available slot.', 'info')
+        # --- End of new logic ---
+
     except Exception as e:
         db.session.rollback()
         flash(f'An error occurred while cancelling the booking: {e}', 'danger')
     
     # Always return a redirect after processing
     return redirect(request.referrer or url_for('profile')) # Redirect to the page they came from, or profile as a fallback
+
 # --- Auth Routes ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -336,11 +406,34 @@ def profile():
     stats = {
         'user_bookings': Booking.query.filter_by(user_id=current_user.id, status='Confirmed').count()
     }
+    # Pass the full 'user' object to the template, which now includes the notification preference
     return render_template('profile.html', 
                           bookings=bookings, 
                           stats=stats, 
                           user=current_user)
 
+# --- NEW ROUTE ---
+@app.route('/update_notification_preference', methods=['POST'])
+@login_required
+def update_notification_preference():
+    """
+    Updates the user's preference for receiving cancellation emails.
+    """
+    # Checkboxes only send a value if they are checked.
+    # So we check for the *presence* of the key in the form.
+    wants_notifications = 'notifications' in request.form
+    
+    try:
+        current_user.wants_cancellation_notifications = wants_notifications
+        db.session.commit()
+        flash('Notification preferences updated!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating preferences: {e}', 'danger')
+            
+    return redirect(url_for('profile'))
+
+# --- Admin Routes ---
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if session.get('admin_logged_in'):
@@ -412,4 +505,3 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(host='0.0.0.0', port=8080, debug=True)
-
