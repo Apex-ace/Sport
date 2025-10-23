@@ -6,8 +6,6 @@
     <title>JIT Sports Room Booking :: Welcome</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Import Three.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -47,28 +45,40 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        /* Style for the 3D canvas background */
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1; /* Place it behind all other content */
+
+        /* --- DECENT AND MODERN PROFESSIONAL GRADIENTS --- */
+
+        /* Light Mode Gradient Background */
+        .light-mode-bg {
+            /* Subtle radial gradient from the center, using white and a light primary tone */
+            background: radial-gradient(circle at top, #f0fdfa 1%, #fff 50%, #f3f4f6 100%);
+            /* Fallback to gray-50 if gradient fails */
+            background-color: #f9fafb; 
+        }
+
+        /* Dark Mode Gradient Background */
+        .dark-mode-bg {
+            /* Subtle radial gradient from the center, using deep gray and a dark primary tone */
+            background: radial-gradient(circle at top, #111827 1%, #000 50%, #030712 100%);
+            /* Fallback to gray-950 if gradient fails */
+            background-color: #030712; 
+        }
+
+        /* Apply the backgrounds */
+        .light .light-mode-bg {
+            background: radial-gradient(circle at top, #f0fdfa 1%, #fff 50%, #f3f4f6 100%);
+        }
+        .dark .dark-mode-bg {
+            background: radial-gradient(circle at top, #111827 1%, #000 50%, #030712 100%);
         }
     </style>
 </head>
-<body class="font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-200">
-
-    <!-- The 3D background will be rendered into this canvas -->
-    <canvas id="bg-canvas"></canvas>
+<body class="font-sans text-gray-900 dark:text-gray-200 light-mode-bg dark:dark-mode-bg">
 
     <div class="relative min-h-screen flex flex-col">
-        <!-- Header with Glassmorphism Effect -->
         <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
             <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16 md:h-20">
-                    <!-- Logo and Brand Name -->
                     <a href="/" class="flex items-center space-x-2 group">
                         <div class="w-10 h-10 p-1 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800 shadow group-hover:shadow-md transition">
                             <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT Logo" class="h-full w-full object-contain">
@@ -77,7 +87,6 @@
                             JIT Sports
                         </span>
                     </a>
-                    <!-- Desktop Navigation Links -->
                     <div class="hidden md:flex items-center space-x-2">
                         <a href="{{ url_for('login') }}" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                             Sign In
@@ -86,7 +95,6 @@
                             Admin Portal
                         </a>
                     </div>
-                    <!-- Mobile Menu Button -->
                     <div class="md:hidden">
                         <button id="menu-btn" type="button" aria-expanded="false" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
                             <span class="sr-only">Open main menu</span>
@@ -95,7 +103,6 @@
                     </div>
                 </div>
             </nav>
-            <!-- Mobile Menu Panel -->
             <div class="hidden md:hidden border-t border-gray-200 dark:border-gray-800" id="mobile-menu">
                 <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                     <a href="{{ url_for('login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Sign In</a>
@@ -104,9 +111,7 @@
             </div>
         </header>
 
-        <!-- Main Content (Flex-grow pushes footer to bottom) -->
         <main class="flex-grow">
-            <!-- Hero Section -->
             <section class="relative pt-24 pb-32 sm:pt-32 sm:pb-40">
                 <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                     <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight tracking-tight mb-6 animate-fade-in-up">
@@ -128,116 +133,40 @@
             </section>
         </main>
 
-        <!-- Footer -->
         <footer class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800">
             <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                     <div class="flex items-center space-x-2">
-                         <div class="w-8 h-8 p-1 rounded-md flex items-center justify-center bg-gray-100 dark:bg-gray-800 shadow-sm">
-                             <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT Logo" class="h-full w-full object-contain">
-                         </div>
-                         <span class="text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">JIT Sports</span>
-                     </div>
-                     <p class="text-sm text-gray-500 dark:text-gray-400">&copy; {{ now_utc.year }} JIT Sports. All rights reserved.</p>
+                            <div class="w-8 h-8 p-1 rounded-md flex items-center justify-center bg-gray-100 dark:bg-gray-800 shadow-sm">
+                                <img src="{{ url_for('static', filename='Logo/logojit.png') }}" alt="JIT Logo" class="h-full w-full object-contain">
+                            </div>
+                            <span class="text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">JIT Sports</span>
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">&copy; {{ now_utc.year }} JIT Sports. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     </div>
 
     <script type="module">
-        // --- 3D Background Setup ---
-        const canvas = document.getElementById('bg-canvas');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true }); // alpha: true makes background transparent
-
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        // --- Lighting ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xffffff, 0.8);
-        pointLight.position.set(5, 5, 5);
-        scene.add(pointLight);
-
-        // --- Objects ---
-        const objects = [];
-        const geometryTypes = [
-            new THREE.TorusGeometry(1, 0.4, 16, 100),
-            new THREE.IcosahedronGeometry(1.2),
-            new THREE.OctahedronGeometry(1.2)
-        ];
-
-        const lightMaterial = new THREE.MeshStandardMaterial({ color: 0x14b8a6, roughness: 0.4, metalness: 0.1 });
-        const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x0f766e, roughness: 0.4, metalness: 0.1 });
-
-        for (let i = 0; i < 20; i++) {
-            const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
-            const isDarkMode = document.documentElement.classList.contains('dark');
-            const material = isDarkMode ? darkMaterial : lightMaterial;
-            const mesh = new THREE.Mesh(geometry, material);
-
-            mesh.position.set(
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 20
-            );
-            mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-            const scale = Math.random() * 0.4 + 0.2;
-            mesh.scale.set(scale, scale, scale);
-            
-            objects.push(mesh);
-            scene.add(mesh);
-        }
-        
-        camera.position.z = 8;
-        
-        // --- Mouse Interaction ---
-        let mouseX = 0;
-        let mouseY = 0;
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-        });
-
-
-        // --- Animation Loop ---
-        const clock = new THREE.Clock();
-        function animate() {
-            const elapsedTime = clock.getElapsedTime();
-            
-            // Animate objects
-            objects.forEach(obj => {
-                obj.rotation.x += 0.002;
-                obj.rotation.y += 0.003;
-            });
-            
-            // Move camera with mouse
-            camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
-            camera.position.y += (mouseY * 2 - camera.position.y) * 0.02;
-            
-            camera.lookAt(scene.position);
-            renderer.render(scene, camera);
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        // --- Handle Window Resize ---
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        });
-
-        // --- Mobile Menu Toggle ---
+        // --- Mobile Menu Toggle (3D script removed) ---
         const menuBtn = document.getElementById('menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         menuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+        
+        // --- Dark Mode Class Toggler (Optional: For completeness if a dark mode toggle button were added later) ---
+        const body = document.body;
+        // Ensure the correct background classes are applied on initial load based on the dark mode script above
+        if (document.documentElement.classList.contains('dark')) {
+            body.classList.remove('light-mode-bg');
+            body.classList.add('dark-mode-bg');
+        } else {
+            body.classList.remove('dark-mode-bg');
+            body.classList.add('light-mode-bg');
+        }
+
     </script>
 </body>
 </html>
-

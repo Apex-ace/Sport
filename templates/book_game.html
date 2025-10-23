@@ -17,13 +17,53 @@
     #modal-confirm-btn.loading .btn-text { display: none; }
     #date-picker-container::-webkit-scrollbar { display: none; }
     #date-picker-container { scrollbar-width: none; -ms-overflow-style: none; }
+
+    /* --- Fix Modal Alignment for Mobile --- */
+    #confirmationModal {
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    #modal-content {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 420px;
+        transform: translateY(0);
+    }
+
+    /* --- Mobile Optimization --- */
+    @media (max-width: 640px) {
+        #confirmationModal {
+            padding: 0.75rem;
+        }
+        #modal-content {
+            width: 92%;
+            max-width: none;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        #modal-content h2 {
+            font-size: 1.25rem;
+        }
+        #modal-content p {
+            font-size: 0.95rem;
+        }
+        #modal-content .grid {
+            gap: 0.75rem;
+        }
+        #modal-content button {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="min-h-screen bg-gray-100 dark:bg-gray-950 pb-24 md:pb-0">
     <div class="max-w-4xl mx-auto px-4 pt-6 sm:px-6 lg:px-8">
-
         <div class="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
             <div class="p-6 sm:p-8">
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-6">
@@ -39,7 +79,7 @@
                 <div class="mb-8">
                     <label class="block text-sm sm:text-base font-semibold mb-3 text-center text-gray-700 dark:text-gray-400">Select a Date</label>
                     <div id="date-picker-container" class="flex overflow-x-auto gap-3 pb-2">
-                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 md:gap-6">
@@ -66,114 +106,107 @@
 </main>
 
 <div id="confirmationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 dark:bg-opacity-70 dark:backdrop-blur-sm transition-opacity duration-200">
-    <div id="modal-content" class="bg-white dark:bg-gray-800 w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-xl dark:border dark:border-gray-700 transition-all duration-200">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 text-center mb-4">Confirm Your Booking</h2>
-        <p id="modal-text" class="text-center text-gray-700 dark:text-gray-300 text-base sm:text-lg mb-8">
-            Are you sure you want to book this slot?
-        </p>
-        <div class="grid grid-cols-2 gap-4">
-            <button id="modal-cancel-btn" type="button" class="py-3 px-4 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors">
-                Cancel
-            </button>
-            <button id="modal-confirm-btn" type="button" class="btn-book flex justify-center items-center py-3 px-4 rounded-lg font-semibold text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-75 disabled:bg-gray-400 dark:disabled:bg-gray-600 transition-colors">
-                <span class="loading-spinner w-5 h-5 mr-2 border-white dark:border-gray-300 border-t-transparent rounded-full animate-spin border-4"></span>
-                <span class="btn-text">Confirm</span>
-            </button>
-        </div>
-    </div>
+    <div id="modal-content" class="bg-white dark:bg-gray-800 w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-xl dark:border dark:border-gray-700 transition-all duration-200">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 text-center mb-4">Confirm Your Booking</h2>
+        <p id="modal-text" class="text-center text-gray-700 dark:text-gray-300 text-base sm:text-lg mb-8">
+            Are you sure you want to book this slot?
+        </p>
+        <div class="grid grid-cols-2 gap-4">
+            <button id="modal-cancel-btn" type="button" class="py-3 px-4 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors">
+                Cancel
+            </button>
+            <button id="modal-confirm-btn" type="button" class="btn-book flex justify-center items-center py-3 px-4 rounded-lg font-semibold text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-75 disabled:bg-gray-400 dark:disabled:bg-gray-600 transition-colors">
+                <span class="loading-spinner w-5 h-5 mr-2 border-white dark:border-gray-300 border-t-transparent rounded-full animate-spin border-4"></span>
+                <span class="btn-text">Confirm</span>
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const datePickerContainer = document.getElementById('date-picker-container');
-    const availableContainer = document.getElementById('available-slots-container');
-    const bookedContainer = document.getElementById('booked-slots-container');
-    const availablePlaceholder = document.getElementById('available-placeholder');
-    const bookedPlaceholder = document.getElementById('booked-placeholder');
-    const bookingForm = document.getElementById('bookingForm');
-    const hiddenDateInput = document.getElementById('hidden_booking_date');
-    const hiddenTimeInput = document.getElementById('hidden_booking_time');
-    const modal = document.getElementById('confirmationModal');
-    const modalText = document.getElementById('modal-text');
-    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const datePickerContainer = document.getElementById('date-picker-container');
+    const availableContainer = document.getElementById('available-slots-container');
+    const bookedContainer = document.getElementById('booked-slots-container');
+    const availablePlaceholder = document.getElementById('available-placeholder');
+    const bookedPlaceholder = document.getElementById('booked-placeholder');
+    const bookingForm = document.getElementById('bookingForm');
+    const hiddenDateInput = document.getElementById('hidden_booking_date');
+    const hiddenTimeInput = document.getElementById('hidden_booking_time');
+    const modal = document.getElementById('confirmationModal');
+    const modalText = document.getElementById('modal-text');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
 
-    const bookedSlotsISO = {{ booked_slots_json|safe }};
-    const isNewUser = {{ is_new_user|safe }};
-    const gameDurationMinutes = {{ game.duration_minutes }};
-    const gameName = {{ game.name|tojson }};
-    const bookedTimestamps = new Set(bookedSlotsISO.map(iso => new Date(iso).getTime()));
-    let slotToBook = null;
+    const bookedSlotsISO = {{ booked_slots_json|safe }};
+    const isNewUser = {{ is_new_user|safe }};
+    const gameDurationMinutes = {{ game.duration_minutes }};
+    const gameName = {{ game.name|tojson }};
+    const bookedTimestamps = new Set(bookedSlotsISO.map(iso => new Date(iso).getTime()));
+    let slotToBook = null;
 
-    // --- Generate Date Chips ---
-    function generateDateChips() {
-        const today = new Date();
-        const shortDayFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
-        datePickerContainer.innerHTML = ''; // Clear existing chips
+    function generateDateChips() {
+        const today = new Date();
+        const shortDayFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
+        datePickerContainer.innerHTML = '';
 
-        for (let i = 0; i < 7; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const dayName = (i === 0) ? 'Today' : shortDayFormatter.format(date);
-            const dateNum = date.getDate();
-            const dateISO = date.toISOString().split('T')[0];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(today);
+            date.setDate(today.getDate() + i);
+            const dayName = (i === 0) ? 'Today' : shortDayFormatter.format(date);
+            const dateNum = date.getDate();
+            const dateISO = date.toISOString().split('T')[0];
 
-            const chip = document.createElement('button');
-            chip.type = 'button';
-            chip.className = 'date-chip flex-shrink-0 flex flex-col items-center justify-center w-[4.5rem] h-[4.5rem] border-2 border-gray-200 dark:border-gray-700 rounded-2xl cursor-pointer transition-all duration-200 bg-white dark:bg-gray-800 font-semibold hover:border-gray-400 dark:hover:border-gray-500';
-            chip.dataset.date = dateISO;
-            chip.innerHTML = `
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'date-chip flex-shrink-0 flex flex-col items-center justify-center w-[4.5rem] h-[4.5rem] border-2 border-gray-200 dark:border-gray-700 rounded-2xl cursor-pointer transition-all duration-200 bg-white dark:bg-gray-800 font-semibold hover:border-gray-400 dark:hover:border-gray-500';
+            chip.dataset.date = dateISO;
+            chip.innerHTML = `
                 <span class="text-xs text-gray-500 dark:text-gray-400">${dayName}</span>
                 <span class="text-lg text-gray-900 dark:text-gray-100 font-bold">${dateNum}</span>
             `;
-            datePickerContainer.appendChild(chip);
-        }
-    }
+            datePickerContainer.appendChild(chip);
+        }
+    }
 
-    // --- Handle Date Chip Click ---
-    function handleDateChipClick(e) {
-        const chip = e.target.closest('.date-chip');
-        if (!chip) return;
-        const selectedDateStr = chip.dataset.date;
-        hiddenDateInput.value = selectedDateStr;
+    function handleDateChipClick(e) {
+        const chip = e.target.closest('.date-chip');
+        if (!chip) return;
+        const selectedDateStr = chip.dataset.date;
+        hiddenDateInput.value = selectedDateStr;
 
-        datePickerContainer.querySelectorAll('.date-chip').forEach(c => {
-            c.classList.remove('selected', 'border-primary-600', 'bg-primary-50', 'dark:border-indigo-400', 'dark:bg-indigo-800');
+        datePickerContainer.querySelectorAll('.date-chip').forEach(c => {
+            c.classList.remove('selected', 'border-primary-600', 'bg-primary-50', 'dark:border-indigo-400', 'dark:bg-indigo-800');
             c.querySelector('span:first-child').classList.remove('text-primary-700', 'dark:text-indigo-200');
             c.querySelector('span:last-child').classList.remove('text-primary-700', 'dark:text-white');
             c.querySelector('span:first-child').classList.add('text-gray-500', 'dark:text-gray-400');
             c.querySelector('span:last-child').classList.add('text-gray-900', 'dark:text-gray-100');
-        });
+        });
 
-        chip.classList.add('selected', 'border-primary-600', 'bg-primary-50', 'dark:border-indigo-400', 'dark:bg-indigo-800');
+        chip.classList.add('selected', 'border-primary-600', 'bg-primary-50', 'dark:border-indigo-400', 'dark:bg-indigo-800');
         chip.querySelector('span:first-child').classList.remove('text-gray-500', 'dark:text-gray-400');
         chip.querySelector('span:last-child').classList.remove('text-gray-900', 'dark:text-gray-100');
         chip.querySelector('span:first-child').classList.add('text-primary-700', 'dark:text-indigo-200');
         chip.querySelector('span:last-child').classList.add('text-primary-700', 'dark:text-white');
 
-        updateAvailableSlots();
-    }
+        updateAvailableSlots();
+    }
 
-    // --- Format Time Helpers ---
-    function formatAMPM(date) { /* ... (no changes) ... */
+    function formatAMPM(date) {
         let hours = date.getHours(); let minutes = date.getMinutes();
         const ampm = hours >= 12 ? 'PM' : 'AM'; hours = hours % 12; hours = hours ? hours : 12;
         minutes = minutes < 10 ? '0'+minutes : minutes; return hours + ':' + minutes + ' ' + ampm;
     }
-    function formatTimeRange(timeStr, duration) { /* ... (no changes) ... */
+    function formatTimeRange(timeStr, duration) {
         const [hours, minutes] = timeStr.split(':').map(Number); const startDate = new Date();
         startDate.setHours(hours, minutes, 0, 0); const endDate = new Date(startDate.getTime() + duration * 60000);
         return `${formatAMPM(startDate)} - ${formatAMPM(endDate)}`;
     }
 
-    // --- Create Slot Element ---
-    function createSlotElement(type, time, text, index) {
-        const isButton = (type === 'available');
-        const el = document.createElement(isButton ? 'button' : 'div');
-        // Base slot classes + animation trigger
-        el.className = 'slot-animate rounded-lg p-3 text-sm font-semibold text-center border-2 border-transparent transition-all duration-200';
-
-        // Apply type-specific Tailwind classes
+    function createSlotElement(type, time, text, index) {
+        const isButton = (type === 'available');
+        const el = document.createElement(isButton ? 'button' : 'div');
+        el.className = 'slot-animate rounded-lg p-3 text-sm font-semibold text-center border-2 border-transparent transition-all duration-200';
         switch (type) {
             case 'available':
                 el.classList.add('bg-green-50', 'text-green-800', 'border-green-300', 'cursor-pointer', 'dark:bg-green-900/30', 'dark:text-green-300', 'dark:border-green-700', 'hover:bg-green-100', 'hover:border-green-400', 'hover:scale-[1.02]', 'dark:hover:bg-green-800/50', 'dark:hover:border-green-600');
@@ -190,82 +223,79 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
 
-        let label = text;
-        if (type === 'available' && time.isPriority) { label += ' (Priority)'; }
-        el.textContent = label;
-        el.style.animationDelay = `${index * 60}ms`; // Slightly faster stagger
+        let label = text;
+        if (type === 'available' && time.isPriority) { label += ' (Priority)'; }
+        el.textContent = label;
+        el.style.animationDelay = `${index * 60}ms`;
 
-        if (isButton) { el.type = 'button'; el.dataset.time = time.value; }
-        return el;
-    }
+        if (isButton) { el.type = 'button'; el.dataset.time = time.value; }
+        return el;
+    }
 
-    // --- Update Available Slots ---
-    function updateAvailableSlots() { /* ... (Logic remains the same, only createSlotElement changed) ... */
-        const selectedDateStr = hiddenDateInput.value;
-        if (!selectedDateStr) { availablePlaceholder.textContent = 'Please select a date.'; return; }
-        availableContainer.innerHTML = ''; bookedContainer.innerHTML = '';
-        const selectedDate = new Date(selectedDateStr + 'T00:00:00Z'); const weekday = selectedDate.getUTCDay(); const now = new Date();
-        let potentialSlots = []; let prioritySlots = {}; let durationForThisGame = gameDurationMinutes;
-        const isCricket = gameName.toLowerCase().includes('cricket');
-        if (isCricket) { potentialSlots = ['14:00']; durationForThisGame = 180; }
+    function updateAvailableSlots() {
+        const selectedDateStr = hiddenDateInput.value;
+        if (!selectedDateStr) { availablePlaceholder.textContent = 'Please select a date.'; return; }
+        availableContainer.innerHTML = ''; bookedContainer.innerHTML = '';
+        const selectedDate = new Date(selectedDateStr + 'T00:00:00Z'); const weekday = selectedDate.getUTCDay(); const now = new Date();
+        let potentialSlots = []; let prioritySlots = {}; let durationForThisGame = gameDurationMinutes;
+        const isCricket = gameName.toLowerCase().includes('cricket');
+        if (isCricket) { potentialSlots = ['14:00']; durationForThisGame = 180; }
         else {
-            if (weekday >= 1 && weekday <= 4) { potentialSlots = ['16:00', '16:30']; }
+            if (weekday >= 1 && weekday <= 4) { potentialSlots = ['16:00', '16:30']; }
             else if (weekday === 5) { potentialSlots = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30']; }
-            prioritySlots = { '2': ['16:00'], '4': ['15:00', '16:30'] };
-        }
-        let availableSlotIndex = 0; let bookedSlotIndex = 0; let hasAvailable = false; let hasBooked = false;
-        potentialSlots.forEach(slotStr => {
-            const [hours, minutes] = slotStr.split(':'); const slotDateTimeLocal = new Date(selectedDateStr + `T${hours}:${minutes}:00`);
-            if (slotDateTimeLocal < now) return;
-            const timeLabel = formatTimeRange(slotStr, durationForThisGame); const isBooked = bookedTimestamps.has(slotDateTimeLocal.getTime());
-            const isPrioritySlot = (prioritySlots[weekday] || []).includes(slotStr);
-            if (isBooked) {
+            prioritySlots = { '2': ['16:00'], '4': ['15:00', '16:30'] };
+        }
+        let availableSlotIndex = 0; let bookedSlotIndex = 0; let hasAvailable = false; let hasBooked = false;
+        potentialSlots.forEach(slotStr => {
+            const [hours, minutes] = slotStr.split(':'); const slotDateTimeLocal = new Date(selectedDateStr + `T${hours}:${minutes}:00`);
+            if (slotDateTimeLocal < now) return;
+            const timeLabel = formatTimeRange(slotStr, durationForThisGame); const isBooked = bookedTimestamps.has(slotDateTimeLocal.getTime());
+            const isPrioritySlot = (prioritySlots[weekday] || []).includes(slotStr);
+            if (isBooked) {
                 const el = createSlotElement('booked', null, timeLabel, bookedSlotIndex++); bookedContainer.appendChild(el); hasBooked = true;
             } else if (isPrioritySlot && !isNewUser) {
                 const el = createSlotElement('reserved', null, `${timeLabel} (Reserved)`, availableSlotIndex++); availableContainer.appendChild(el); hasAvailable = true;
             } else {
                 const timeData = { value: slotStr, isPriority: isPrioritySlot }; const el = createSlotElement('available', timeData, timeLabel, availableSlotIndex++); availableContainer.appendChild(el); hasAvailable = true;
             }
-        });
-        if (!hasAvailable) {
+        });
+        if (!hasAvailable) {
             let msg = 'All slots are booked or past.'; if (!isCricket && potentialSlots.length === 0) { msg = 'No slots on this day.'; }
             availableContainer.appendChild(availablePlaceholder).textContent = msg; availablePlaceholder.classList.remove('hidden');
         } else { availablePlaceholder.classList.add('hidden'); }
-        if (!hasBooked) {
+        if (!hasBooked) {
             bookedContainer.appendChild(bookedPlaceholder).textContent = 'No slots booked for this day.'; bookedPlaceholder.classList.remove('hidden');
         } else { bookedPlaceholder.classList.add('hidden'); }
     }
 
-    // --- Modal Controls ---
-    function showModal() { /* ... (no changes) ... */
-        if (!slotToBook) return;
-        modalText.innerHTML = `Book <strong class='text-primary-600 dark:text-primary-400'>${gameName}</strong> for:<br>
-                               <strong class='text-gray-800 dark:text-gray-200'>${slotToBook.label}</strong> on <strong class='text-gray-800 dark:text-gray-200'>${slotToBook.date}</strong>?`;
-        modal.classList.add('visible');
+    function showModal() {
+        if (!slotToBook) return;
+        modalText.innerHTML = `Book <strong class='text-primary-600 dark:text-primary-400'>${gameName}</strong> for:<br>
+                              <strong class='text-gray-800 dark:text-gray-200'>${slotToBook.label}</strong> on <strong class='text-gray-800 dark:text-gray-200'>${slotToBook.date}</strong>?`;
+        modal.classList.add('visible');
     }
-    function hideModal() { /* ... (no changes) ... */
+
+    function hideModal() {
         modal.classList.remove('visible'); modalConfirmBtn.classList.remove('loading');
         modalConfirmBtn.disabled = false; slotToBook = null;
     }
-    function handleSlotClick(e) { /* ... (no changes) ... */
-        const button = e.target.closest('.slot-animate[data-time]'); if (!button) return; // Only target available slots
+
+    function handleSlotClick(e) {
+        const button = e.target.closest('.slot-animate[data-time]'); if (!button) return;
         slotToBook = { time: button.dataset.time, date: hiddenDateInput.value, label: button.textContent }; showModal();
     }
-    function handleModalConfirm() { /* ... (no changes) ... */
+
+    function handleModalConfirm() {
         if (!slotToBook) return; modalConfirmBtn.classList.add('loading');
         modalConfirmBtn.disabled = true; hiddenDateInput.value = slotToBook.date;
         hiddenTimeInput.value = slotToBook.time; bookingForm.submit();
     }
 
-    // --- Initial Setup ---
-    generateDateChips();
-    datePickerContainer.addEventListener('click', handleDateChipClick);
-    availableContainer.addEventListener('click', handleSlotClick); // Use event delegation
-    modalCancelBtn.addEventListener('click', hideModal);
-    modalConfirmBtn.addEventListener('click', handleModalConfirm);
-    modal.addEventListener('click', function(e) { if (e.target === modal) { hideModal(); } });
-    const firstChip = datePickerContainer.querySelector('.date-chip');
-    if (firstChip) { firstChip.click(); } // Auto-select today
+    generateDateChips();
+    datePickerContainer.addEventListener('click', handleDateChipClick);
+    availableContainer.addEventListener('click', handleSlotClick);
+    modalCancelBtn.addEventListener('click', hideModal);
+    modalConfirmBtn.addEventListener('click', handleModalConfirm);
 });
 </script>
 {% endblock %}
